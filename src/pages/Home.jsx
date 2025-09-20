@@ -1,7 +1,7 @@
-import Navbar from "../components/Navbar";
-import Hero from "../components/Hero";
-import Carousel from "../components/Carousel";
-import Footer from "../components/Footer";
+import Navbar from "../components/Fragments/Navbar.jsx";
+import Hero from "../components/Fragments/Hero.jsx";
+import CarouselRow from "../components/Fragments/CarouselRow.jsx";
+import Footer from "../components/Fragments/Footer.jsx";
 
 const historyItems = [
   { src: "/content-img/history_1.webp", title: "Dont Look Up", rating: "4.5/5" },
@@ -29,13 +29,12 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
-        <section className="w-full px-5 md:px-20 py-5 md:py-10 history-carousel">
-          <h3 className="text-2xl md:text-[32px] font-bold pb-5 md:pb-8">Melanjutkan Tontonan Film</h3>
-          <Carousel items={historyItems} history />
+        <section className="history-carousel">
+            <CarouselRow title="Melanjutkan Tontonan Film" items={historyItems} variant="history" />
         </section>
-        <Carousel title="Top Rating Film dan Series Hari ini" items={topItems} />
-        <Carousel title="Film Trending" items={trendItems} />
-        <Carousel title="Rilis Baru" items={newItems} />
+        <CarouselRow title="Top Rating Film dan Series Hari ini" items={topItems} variant="poster" />
+        <CarouselRow title="Film Trending" items={trendItems} variant="poster" />
+        <CarouselRow title="Rilis Baru" items={newItems} variant="poster" />
       </main>
       <Footer />
     </div>
