@@ -80,7 +80,7 @@ export default function Footer() {
       <footer className="md:hidden flex w-full pt-7">
         <div className="w-full flex flex-col gap-10 p-5">
           <div className="flex flex-col gap-4">
-            <img src="../public/icon/logo.svg" alt="" className="w-20" />
+            <img src="/icon/logo.svg" alt="" className="w-20" />
             <p className="text-xs text-zinc-300">@2023 Chill All Rights Reserved</p>
           </div>
 
