@@ -31,7 +31,7 @@ export default function Footer() {
         <div className="w-full flex justify-between gap-5">
           {/* Logo */}
           <div className="flex flex-col gap-6">
-            <img src="../public/icon/logo.svg" alt="chill logo" className="w-[104px]" />
+            <img src="/icon/logo.svg" alt="chill logo" className="w-[104px]" />
             <p className="text-base pt-2 text-zinc-300">@2023 Chill All Rights Reserved</p>
           </div>
           {/* Genre */}
