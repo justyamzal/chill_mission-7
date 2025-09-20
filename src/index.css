@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+/* Font global */
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap");
+
+@import "@splidejs/splide/css";
+
+:root {
+  --font-sans: "Lato", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans";
+}
+
+html, body, #root {
+   height: 100%; 
+}
+
+/* --- Custom Splide --- */
+.splide__arrow {
+  background-color: rgba(47, 51, 52, 1) !important;
+  border: 1px solid rgba(231, 227, 252, 0.23) !important;
+  width: 44px !important;
+  height: 44px !important;
+  opacity: 1 !important;
+   transform: translate(-66%, -50%);
+
+}
+.splide__arrow:hover {
+   background-color: rgba(24, 26, 28, 1) !important; 
+}
+
+.splide__arrow svg { 
+  fill: white !important; 
+}
+
+/* Recommedation card (top/trend/new) */
+.reco-slide img {
+   width: 234px; 
+   height: 365px; 
+   border-radius: 8px; 
+   object-fit: cover; 
+}
+
+@media (max-width: 1024px) {
+     .splide__arrow--next { 
+      right: -3em;
+  }
+}
+
+@media (max-width: 480px) {
+  .reco-slide img {
+    width: 95.6px; height: 143.39px; 
+  }
+}
+
+.history-carousel .splide__arrow--prev {
+   left: 1em !important;
+}
+.history-carousel .splide__arrow--next { 
+  right: -3em !important; 
+}
