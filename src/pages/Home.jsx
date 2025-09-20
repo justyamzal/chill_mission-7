@@ -2,6 +2,7 @@ import Navbar from "../components/Fragments/Navbar.jsx";
 import Hero from "../components/Fragments/Hero.jsx";
 import CarouselRow from "../components/Fragments/CarouselRow.jsx";
 import Footer from "../components/Fragments/Footer.jsx";
+import { useShows } from "../state/shows-context.jsx";
 
 const historyItems = [
   { src: "/content-img/history_1.webp", title: "Dont Look Up", rating: "4.5/5" },
@@ -24,17 +25,24 @@ const newItems = [
 ].map((src) => ({ src }));
 
 export default function Home() {
+  const { items } = useShows();
+  const toSlide = (s) => ({ src: s.foto_sampul, title: s.nama_tayangan });
+  const extraHistory  = items.filter(s => s.nominasi === "history").map(toSlide);
+  const extraTop      = items.filter(s => s.nominasi === "top").map(toSlide);
+  const extraTrending = items.filter(s => s.nominasi === "trending").map(toSlide);
+  const extraNew      = items.filter(s => s.nominasi === "new").map(toSlide);
   return (
     <div className="min-h-screen w-full bg-[rgba(24,26,28,1)] text-white">
       <Navbar />
       <main>
         <Hero />
         <section className="history-carousel">
-            <CarouselRow title="Melanjutkan Tontonan Film" items={historyItems} variant="history" />
+         <CarouselRow title="Melanjutkan Tontonan Film" items={[...extraHistory, ...historyItems]} variant="history" />
         </section>
-        <CarouselRow title="Top Rating Film dan Series Hari ini" items={topItems} variant="poster" />
-        <CarouselRow title="Film Trending" items={trendItems} variant="poster" />
-        <CarouselRow title="Rilis Baru" items={newItems} variant="poster" />
+        <CarouselRow title="Top Rating Film dan Series Hari ini" items={[...extraTop, ...topItems]} />
+        <CarouselRow title="Film Trending" items={[...extraTrending, ...trendItems]} />
+        <CarouselRow title="Rilis Baru" items={[...extraNew, ...newItems]} />
+
       </main>
       <Footer />
     </div>

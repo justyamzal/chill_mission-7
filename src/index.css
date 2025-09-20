@@ -35,7 +35,7 @@ html, body, #root {
 
 /* Poster (top/trend/new) */
 .poster-carousel .splide__arrow--prev { left: -1rem !important; }
-.poster-carousel .splide__arrow--next { right: -1.5rem !important; }
+.poster-carousel .splide__arrow--next { right: 1.2rem !important; }
 
 /* Responsif: rapatkan sedikit di layar lebih kecil */
 @media (max-width: 1024px) {
