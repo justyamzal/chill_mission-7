@@ -25,29 +25,66 @@ html, body, #root {
   opacity: 1 !important;
   transform: translateY(-50%); /* hanya vertikal — horizontal via left/right */
 }
-.splide__arrow:hover { background-color: rgba(24, 26, 28, 1) !important; }
-.splide__arrow svg { fill: white !important; }
+.splide__arrow:hover { 
+  background-color: rgba(24, 26, 28, 1) !important; 
+}
+.splide__arrow svg {
+   fill: white !important; 
+}
 
 /* --- Posisi arrow per section --- */
 /* History (landscape) */
-.history-carousel .splide__arrow--prev { left: -1.25rem !important; }
-.history-carousel .splide__arrow--next { right: -2rem !important; }
+.history-carousel .splide__arrow--prev { 
+  left: -1.25rem !important; }
+
+.history-carousel .splide__arrow--next {
+   right: -2rem !important; 
+}
 
 /* Poster (top/trend/new) */
-.poster-carousel .splide__arrow--prev { left: -1rem !important; }
-.poster-carousel .splide__arrow--next { right: 1.2rem !important; }
+.poster-carousel .splide__arrow--prev { 
+  left: -1rem !important;
+}
+.poster-carousel .splide__arrow--next { 
+  right: 1.2rem !important; 
+}
 
 /* Responsif: rapatkan sedikit di layar lebih kecil */
 @media (max-width: 1024px) {
-  .history-carousel .splide__arrow--prev { left: -0.75rem !important; }
-  .history-carousel .splide__arrow--next { right: -1.5rem !important; }
-  .poster-carousel .splide__arrow--prev { left: -0.5rem !important; }
-  .poster-carousel .splide__arrow--next { right: -1rem !important; }
+  .history-carousel .splide__arrow--prev {
+     left: -0.75rem !important; 
+  }
+  .history-carousel .splide__arrow--next {
+     right: -1.5rem !important; 
+  }
+  .poster-carousel .splide__arrow--prev {
+     left: -0.5rem !important; 
+  }
+  .poster-carousel .splide__arrow--next {
+     right: -1rem !important; 
+  }
 }
 
 /* card khusus poster */
-.reco-slide img { width: 234px; height: 365px; border-radius: 8px; object-fit: cover; }
+.reco-slide img {
+   width: 234px; height: 365px; border-radius: 8px; object-fit: cover; 
+}
 @media (max-width: 480px) {
   .reco-slide img { width: 95.6px; height: 143.39px; }
 }
 
+/*----- Use State Manage -----*/
+/* Select gelap (background dropdown & option) */
+.select-dark {
+  background-color: #181A1C;
+  color: #fff;
+}
+.select-dark option {
+  background-color: #181A1C;
+  color: #fff;
+}
+/* Fokus biar border keliatan */
+.select-dark:focus {
+  outline: none;
+  border-color: rgba(255,255,255,.4);
+}

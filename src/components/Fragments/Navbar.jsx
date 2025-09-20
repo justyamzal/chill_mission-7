@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -47,6 +48,9 @@ export default function Navbar() {
             <div className="absolute right-0 mt-3 w-40 rounded border border-blue-600 bg-[rgba(24,26,28,1)] p-4 text-sm shadow-lg z-10">
               <ul className="flex flex-col gap-4">
                 <li className="cursor-pointer hover:text-blue-500"><i className="fa-solid fa-user mr-2" />Profil Saya</li>
+                <li>
+                <Link to="/manage" className="block hover:text-blue-500" onClick={()=>setOpen(false)}><i className="fa-solid fa-gear mr-2" />Manage</Link>
+                </li>
                 <li className="cursor-pointer hover:text-blue-500"><i className="fa-solid fa-star mr-2" />Ubah Premium</li>
                 <li className="cursor-pointer hover:text-blue-500"><i className="fa-solid fa-right-from-bracket mr-2" />Keluar</li>
               </ul>

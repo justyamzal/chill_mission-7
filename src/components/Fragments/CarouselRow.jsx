@@ -80,10 +80,12 @@ export default function CarouselRow({
             <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 to-transparent">
               <div className="flex items-center justify-between">
                 <div className="font-semibold text-sm line-clamp-1">{it.title}</div>
-                {it.rating && (
+                {it.rating !== undefined && it.rating !== "" && (
                   <div className="flex items-center gap-1 text-xs">
                     <img src="/icon/star.svg" alt="rating" className="size-4" />
-                    <span>{it.rating}</span>
+                      <span>
+                        {typeof it.rating === "string" ? it.rating : `${Number(it.rating).toFixed(1).replace(/\.0$/, "")}/5`}
+                      </span>
                   </div>
                 )}
               </div>

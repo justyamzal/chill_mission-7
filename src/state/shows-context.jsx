@@ -76,5 +76,10 @@ function sanitize(d, partial = false) {
   set("kategori", d.kategori || "film");           // film | series
   set("foto_sampul", (d.foto_sampul ?? "").toString().trim());
 
+ // rating: simpan angka 0..5 (boleh desimal)
+  if (!partial || d.rating !== undefined) {
+  const num = Number(d.rating);
+  out.rating = Number.isFinite(num) ? Math.max(0, Math.min(5, num)) : "";
+  }
   return out;
 }

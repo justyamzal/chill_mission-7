@@ -43,8 +43,8 @@ export default function Manage() {
 
   const [form, setForm] = useState({
     id: "", nama_tayangan: "", tahun: "",
-    nominasi: "history", genre: "Aksi", kategori: "film",
-    foto_sampul: "",
+    nominasi: "history", genre: "Aksi", kategori: "film"  ,
+    foto_sampul: "", rating: ""    ,
   });
 
   const [imgMode, setImgMode] = useState("url"); // "url" | "upload"
@@ -79,7 +79,8 @@ export default function Manage() {
     addShow(form);
   }
   // reset form
-  setForm({ id:"", nama_tayangan:"", tahun:"", nominasi:"history", genre:"Aksi", kategori:"film", foto_sampul:"" });
+  setForm({ id:"", nama_tayangan:"", tahun:"", nominasi:"history", genre:"Aksi", kategori:"film", foto_sampul:"", rating:"" });
+
   setImgMode("url")
   }
 
@@ -89,8 +90,8 @@ export default function Manage() {
       <main className="px-5 md:px-20 py-6 md:py-10 space-y-10">
          <header>
    <h1 className="text-2xl md:text-3xl font-bold">Manage Tayangan</h1>
-   <p className="mt-1 text-sm">
-     <span className="rounded-full bg-white/10 px-2 py-0.5">
+   <p className="mt-3 mb-3 text-sm">
+     <span className="rounded-full bg-white/10 px-2 py-1">
        Mode: {editingId ? "Edit data" : "Tambah data"}
      </span>
    </p>
@@ -111,6 +112,8 @@ export default function Manage() {
                 ["trending","Film Trending"],
                 ["new","Rilis Baru"],
               ]} />
+
+            <Input label="Rating (0–5)"name="rating" type="number" min="0" max="5" step="0.1" value={form.rating} onChange={onChange}  placeholder="mis. 4.5"/>
 
             <Select label="Genre" name="genre" value={form.genre} onChange={onChange}
               options={GENRES.map(g => [g, g])} />
@@ -203,6 +206,7 @@ export default function Manage() {
                   genre: it.genre,
                   kategori: it.kategori,
                   foto_sampul: it.foto_sampul,
+                  rating: (it.rating ?? "").toString(),
                 });
                 setImgMode(it.foto_sampul?.startsWith("data:") ? "upload" : "url");
                 window.scrollTo({ top: 0, behavior: "smooth" });
@@ -260,7 +264,7 @@ function Select({ label, options, className="", ...props }) {
     <label className={`flex flex-col gap-1 ${className}`}>
       <span className="text-sm text-white/80">{label}</span>
       <select {...props}
-        className="rounded-xl border border-white/20 bg-transparent px-4 py-2 outline-none focus:border-white/40">
+        className="rounded-xl border border-white/20 bg-[#242628] px-4 py-2 outline-none focus:border-white/40">
         {options.map(([value, text]) => <option key={value} value={value}>{text}</option>)}
       </select>
     </label>
