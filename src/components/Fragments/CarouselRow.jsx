@@ -47,9 +47,11 @@ export default function CarouselRow({
     ...preset,
     ...options,
   };
-
   return (
-     <section className="w-full px-5 md:px-20 py-5 md:py-10">
+    <section
+      className={`w-full px-5 md:px-20 py-5 md:py-10 ${
+        variant === "history" ? "history-carousel" : "poster-carousel"
+      }`}>
       {title && <h3 className="text-2xl sm:text-[32px] font-bold pb-6">{title}</h3>}
       <Splide options={opts}>
         {items.map((it, i) => (
