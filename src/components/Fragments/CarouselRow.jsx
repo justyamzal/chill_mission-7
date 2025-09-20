@@ -1,33 +1,33 @@
 // src/components/Fragments/CarouselRow.jsx
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 
-const PRESET = {
-  history: {
-    fixedWidth: 302,
-    fixedHeight: 162,
-    perPage: 4,
-    gap: "24px",
-    breakpoints: {
-      1366: { fixedWidth: 290, perPage: 4 },
-      1280: { fixedWidth: 280, perPage: 3.5 },
-      1024: { fixedWidth: 260, perPage: 2.5 },
-      640:  { fixedWidth: 240, perPage: 1.7, arrows: false, gap: "16px" },
-      400:  { fixedWidth: 220, perPage: 1.3, arrows: false, gap: "14px" },
-    },
-  },
-  poster: {
-    fixedWidth: 234,
-    fixedHeight: 365,
-    perPage: 5,
-    gap: "24px",
-    breakpoints: {
-      1280: { perPage: 5 },
-      1024: { perPage: 4 },
-      640:  { perPage: 3.5, arrows: false, gap: "15px" },
-      400:  { perPage: 3.2, arrows: false, gap: "12px" },
-    },
-  },
-};
+ const PRESET = {
+   // 4 card tetap di desktop
+   history: {
+     perPage: 4,
+     gap: "24px",
+     perMove: 1,
+     breakpoints: {
+       1280: { perPage: 4 },
+       1024: { perPage: 3.5 },
+       768:  { perPage: 3 },
+       640:  { perPage: 2, arrows: false, gap: "16px" },
+       400:  { perPage: 1.5, arrows: false, gap: "14px" },
+     },
+   },
+   // default 5 card di desktop
+   poster: {
+     perPage: 5,
+     gap: "24px",
+     perMove: 1,
+     breakpoints: {
+       1280: { perPage: 5 },
+       1024: { perPage: 4 },
+       640:  { perPage: 3.5, arrows: false, gap: "15px" },
+       400:  { perPage: 3.2, arrows: false, gap: "12px" },
+     },
+   },
+ };
 
 export default function CarouselRow({
   title,
@@ -47,20 +47,24 @@ export default function CarouselRow({
     ...preset,
     ...options,
   };
+
+
   return (
     <section
-      className={`w-full px-5 md:px-20 py-5 md:py-10 ${
-        variant === "history" ? "history-carousel" : "poster-carousel"
-      }`}>
+      className={`w-full px-5 md:px-20 py-5 md:py-10 ${variant === "history" ? "history-carousel" : "poster-carousel"}`}>
+
       {title && <h3 className="text-2xl sm:text-[32px] font-bold pb-6">{title}</h3>}
       <Splide options={opts}>
         {items.map((it, i) => (
           <SplideSlide key={it.id ?? i}>
-            <div className="relative w-full h-full overflow-hidden rounded-lg">
+            {/* kunci tinggi kartu supaya konsisten */}
+            <div className={`relative w-full overflow-hidden rounded-lg ${
+              variant === "history" ? "h-[162px]" : "h-[365px]"
+            }`}>
               <img
                 src={it.src}
                 alt={it.title ?? `item ${i + 1}`}
-                className="w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
               />
               {variant === "history" && (it.title || it.rating) && (
