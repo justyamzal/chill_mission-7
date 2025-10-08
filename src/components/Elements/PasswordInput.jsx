@@ -13,11 +13,7 @@ export default function PasswordInput({
   return (
     <div className="relative">
       <input
-        id={id}
-        name={name}
-        type={type}
-        placeholder={placeholder}
-        required={required}
+        id={id} name={name} type={type} placeholder={placeholder} required={required}
         className={[
           "w-full rounded-full border border-white/20 bg-transparent px-5 py-3",
           "text-base text-zinc-300 placeholder:text-zinc-400",
