@@ -51,7 +51,14 @@ export default function Manage() {
 
   function onChange(e) {
     const { name, value } = e.target;
-    setForm(s => ({ ...s, [name]: value }));
+    setForm((s) => {
+      if (name === "rating") {
+        // clamp 0..5 dan simpan sebagai string agar tetap cocok dengan input[type=number]
+        const num = Math.max(0, Math.min(5, parseFloat(value || "0")));
+        return { ...s, rating: Number.isNaN(num) ? "" : String(num) };
+      }
+      return { ...s, [name]: value };
+    });
   }
 
   async function onPickFile(e) {
@@ -67,22 +74,34 @@ export default function Manage() {
     }
   }
 
-  function onSubmit(e) {
-    e.preventDefault();
-    if (!form.nama_tayangan || !form.foto_sampul) return;
+function onSubmit(e) {
+  e.preventDefault();
+  if (!form.nama_tayangan || !form.foto_sampul) return;
+
+  const payload = {
+    ...form,
+    id: form.id?.trim() ? form.id : crypto.randomUUID(),
+    // koersi angka (opsional)
+    tahun: form.tahun ? String(parseInt(form.tahun, 10)) : "",
+    rating: form.rating === "" ? "" : String(Math.max(0, Math.min(5, parseFloat(form.rating))))
+  };
+
   if (editingId) {
-    // jangan ubah id lewat patch
-     const patch = { ...form }; delete patch.id;
-     updateShow(editingId, patch);
+    const patch = { ...payload }; delete patch.id;
+    updateShow(editingId, patch);
     setEditingId(null);
   } else {
-    addShow(form);
+    addShow(payload);
   }
-  // reset form
-  setForm({ id:"", nama_tayangan:"", tahun:"", nominasi:"history", genre:"Aksi", kategori:"film", foto_sampul:"", rating:"" });
 
-  setImgMode("url")
-  }
+  // reset form (rating disertakan)
+  setForm({
+    id: "", nama_tayangan: "", tahun: "",
+    nominasi: "history", genre: "Aksi", kategori: "film",
+    foto_sampul: "", rating: ""
+  });
+  setImgMode("url");
+}
 
   return (
     <div className="min-h-screen w-full bg-[#181A1C] text-white">
@@ -166,9 +185,14 @@ export default function Manage() {
                 {editingId ? "Update" : "Simpan"}
             </button>
             {editingId && (
-                <button
-                type="button"
-                onClick={() => { setEditingId(null); setForm({ id:"", nama_tayangan:"", tahun:"", nominasi:"history", genre:"Aksi", kategori:"film", foto_sampul:"" }); setImgMode("url"); }}
+                <button type="button" onClick={() => {
+                        setEditingId(null); setForm({
+                        id: "", nama_tayangan: "", tahun: "",
+                        nominasi: "history", genre: "Aksi", kategori: "film",
+                        foto_sampul: "", rating: ""
+                      });
+                    setImgMode("url");  
+                }} 
                 className="rounded-full border border-white/30 px-6 py-2 font-semibold hover:border-white/60"
                 >Batal</button>
             )}
@@ -193,7 +217,7 @@ export default function Manage() {
                     </div>
                     <p className="text-sm text-white/70">{it.genre} • {it.tahun || "-"}</p>
                     <p className="text-xs text-white/60">Nominasi: {labelNominasi(it.nominasi)}</p>
-                    +          <div className="flex flex-wrap items-center gap-2 pt-2">
+                  <div className="flex flex-wrap items-center gap-2 pt-2">
             <button
               onClick={() => {
                 // masuk mode edit: isi form dari item
