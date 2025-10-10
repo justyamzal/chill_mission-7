@@ -1,8 +1,11 @@
 // src/components/Fragments/Hero.jsx
 import Button from "../Elements/Button";
 import Badge from "../Elements/Badge";
+import SelectScrollable from "../Elements/SelectScrollable.jsx";
+// import { useState } from "react";
 
 export default function Hero() {
+   
   return (
     <section className="relative w-full max-h-[587px] h-[60vh] sm:h-[70vh] bg-[url('/bg-img/bg-hero.svg')] bg-cover bg-center">
       <div className="absolute inset-0 flex flex-col gap-5 px-5 md:px-20 pt-20 sm:pt-72">

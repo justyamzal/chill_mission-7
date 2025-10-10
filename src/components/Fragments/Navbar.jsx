@@ -22,12 +22,15 @@ export default function Navbar() {
         {/* Left */}
         <div className="flex items-center gap-5 md:gap-20">
           {/* desktop logo */}
-          <img src="/icon/logo.svg" alt="logo" className="hidden md:block w-[104px]" />
+          <a href="/home">
+              <img src="/icon/logo.svg" alt="logo" className="hidden md:block w-[104px]" />
+          </a>
+          
           {/* mobile logo */}
           <img src="/icon/chill-icon.svg" alt="chill" className="block md:hidden w-6 h-6" />
 
           <ul className="hidden md:flex items-center gap-20">
-            <li><a className="hover:text-blue-500" href="#">Series</a></li>
+            <li><a className="hover:text-blue-500" href="/series">Series</a></li>
             <li><a className="hover:text-blue-500" href="#">Film</a></li>
             <li><a className="hover:text-blue-500" href="#">Daftar Saya</a></li>
           </ul>
