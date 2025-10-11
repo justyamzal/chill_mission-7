@@ -11,7 +11,7 @@ function Series() {
 
   const byNominasi = (nominasi) =>
     seriesItems
-      .filter((s) => s.nominasi === nominasi)
+      .filter((s) => s.nominasi === nominasi && s.kategori === "series")
       .map((s, i) => ({
         id: s.id ?? `series-${nominasi}-${i}`,
         src: s.foto_sampul,
@@ -33,6 +33,7 @@ function Series() {
 
       <main className="flex flex-col gap-8">
         <CarouselRow title="Melanjutkan Tontonan Series" items={byNominasi("history")} variant="history" />
+        <CarouselRow title="Series Persembahan Chill" items={byNominasi("original")} variant="poster"/>
         <CarouselRow title="Top Rating Series Hari ini" items={byNominasi("top")} />
         <CarouselRow title="Series Trending" items={byNominasi("trending")} />
         <CarouselRow title="Rilis Baru" items={byNominasi("new")} />

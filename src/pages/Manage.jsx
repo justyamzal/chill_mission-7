@@ -128,7 +128,8 @@ function onSubmit(e) {
               options={[
                 ["history","History (Melanjutkan)"],
                 ["top","Top Rating Film & Series Hari ini"],
-                ["trending","Film Trending"],
+                ["original","Series/Film Persembahan Chill"],
+                ["trending","Trending"],
                 ["new","Rilis Baru"],
               ]} />
 
@@ -298,7 +299,7 @@ function labelNominasi(v) {
   switch (v) {
     case "history": return "History (Melanjutkan)";
     case "top": return "Top Rating Hari ini";
-    case "trending": return "Film Trending";
+    case "trending": return "Trending";
     case "new": return "Rilis Baru";
     default: return v;
   }

@@ -15,6 +15,8 @@ export default function Film() {
   const { items } = useShows();
   const [selectedGenre, setSelectedGenre] = useState("");
 
+  
+
   // hanya kategori 'film' + filter genre jika dipilih
   const films = items.filter(
     (s) => s.kategori === "film" && (!selectedGenre || s.genre === selectedGenre)
@@ -36,6 +38,15 @@ export default function Film() {
   const pick = (nominasi, mapper = mapPoster) =>
     films.filter((s) => s.nominasi === nominasi).map(mapper);
 
+  // fungsi tambahan untuk filter nominasi berdasarkan kategori
+  const byNominasi = (nominasi, mapper = mapPoster) =>
+  items
+    .filter(
+      (s) => s.nominasi === nominasi && s.kategori === "film" // filter khusus film
+    )
+    .map(mapper);
+
+
   return (
     <div className="min-h-screen w-full bg-[#181A1C] text-white">
       <Navbar />
@@ -43,27 +54,28 @@ export default function Film() {
       <FilmHero genres={FILM_GENRES} onGenreChange={setSelectedGenre} />
 
       <main className="flex flex-col gap-8">
-        <CarouselRow
-          title={selectedGenre ? `Melanjutkan Tonton Film ${selectedGenre}` : "Melanjutkan Tonton Film"}
-          items={pick("history", mapHistory)}
-          variant="history"
-        />
-        <CarouselRow
-          title={selectedGenre ? `Film Persembahan Chill — ${selectedGenre}` : "Film Persembahan Chill"}
-          items={pick("top")}
-        />
-        <CarouselRow
-          title={selectedGenre ? `Top Rating Film ${selectedGenre} Hari ini` : "Top Rating Film Hari ini"}
-          items={pick("rating")}
-        />
-        <CarouselRow
-          title={selectedGenre ? `Film Trending — ${selectedGenre}` : "Film Trending"}
-          items={pick("trending")}
-        />
-        <CarouselRow
-          title={selectedGenre ? `Rilis Film Baru — ${selectedGenre}` : "Rilis Baru"}
-          items={pick("new")}
-        />
+        {/* Melanjutkan */}
+        <CarouselRow title = { 
+          selectedGenre ? `Melanjutkan Tonton Film ${selectedGenre}` : "Melanjutkan Tonton Film"} 
+          items={pick("history", mapHistory)} variant="history"/>
+
+        {/* Film Persembahan Chill — diambil dari nominasi persembahan */}
+        <CarouselRow title="Film Persembahan Chill"
+          items={byNominasi("original")}/>
+
+        {/* Top Rating */}
+        <CarouselRow title={
+            selectedGenre ? `Top Rating Film ${selectedGenre} Hari ini` : "Top Rating Film Hari ini"
+          }
+          items={pick("rating")}/>
+
+        {/* Film Trending */}
+        <CarouselRow title={selectedGenre ? `Film Trending — ${selectedGenre}` : "Film Trending"}
+          items={pick("trending")}/>
+
+        {/* Rilis Baru */}
+        <CarouselRow title={selectedGenre ? `Rilis Film Baru — ${selectedGenre}` : "Rilis Baru"}
+          items={pick("new")}/>
       </main>
 
       <Footer />
