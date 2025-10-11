@@ -18,7 +18,6 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/manage" element={<Manage />} />
         <Route path="/register" element={<Register />} />
-
         <Route path="*" element={<div className="p-8 text-white">404</div>} />
       </Routes>
     </ShowsProvider>
