@@ -67,7 +67,7 @@ export default function Film() {
         <CarouselRow title={
             selectedGenre ? `Top Rating Film ${selectedGenre} Hari ini` : "Top Rating Film Hari ini"
           }
-          items={pick("rating")}/>
+          items={pick("top")}/>
 
         {/* Film Trending */}
         <CarouselRow title={selectedGenre ? `Film Trending — ${selectedGenre}` : "Film Trending"}
