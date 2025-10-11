@@ -7,7 +7,6 @@ import { useShows } from "../state/shows-context";
 
 function Series() {
   const { items } = useShows();
-
   const seriesItems = items.filter((s) => s.kategori === "series");
 
   const byNominasi = (nominasi) =>

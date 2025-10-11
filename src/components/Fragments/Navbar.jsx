@@ -31,7 +31,7 @@ export default function Navbar() {
 
           <ul className="hidden md:flex items-center gap-20">
             <li><a className="hover:text-blue-500" href="/series">Series</a></li>
-            <li><a className="hover:text-blue-500" href="#">Film</a></li>
+            <li><a className="hover:text-blue-500" href="/film">Film</a></li>
             <li><a className="hover:text-blue-500" href="#">Daftar Saya</a></li>
           </ul>
         </div>
