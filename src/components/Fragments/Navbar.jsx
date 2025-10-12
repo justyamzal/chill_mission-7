@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import GenreDropdown from "../Elements/GenreDropdown";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const refWrap = useRef(null);
 
+
+  
 
   useEffect(() => {
 
@@ -18,23 +21,24 @@ export default function Navbar() {
 
   return (
     <header className="w-full px-5 md:px-20 py-3 md:py-6 relative z-50">
-      <nav className="flex items-center justify-between">
+      <nav className="flex items-center justify-between ">
         {/* Left */}
-        <div className="flex items-center gap-5 md:gap-20">
-          {/* desktop logo */}
-          <a href="/home">
-              <img src="/icon/logo.svg" alt="logo" className="hidden md:block w-[104px]" />
-          </a>
-          
-          {/* mobile logo */}
-          <img src="/icon/chill-icon.svg" alt="chill" className="block md:hidden w-6 h-6" />
+        <div className="flex items-center gap-3 sm:gap-5 md:gap-20 ml-[20px] sm:ml-0">
+        {/* desktop logo */}
+        <a href="/home" className="hidden md:block">
+          <img src="/icon/logo.svg" alt="logo" className="w-[104px]" />
+        </a>
+        {/* mobile logo */}
+        <a href="/home" className="md:hidden !m-0 mr-3 sm:mr-0">
+          <img src="/icon/chill-icon.svg" alt="chill" className="block w-6 h-6" />
+        </a>
+        <ul className="flex items-center gap-3 sm:gap-10 md:gap-20 ml-0">
+          <li><a className="hover:text-blue-500 text-sm sm:text-base" href="/series">Series</a></li>
+          <li><a className="hover:text-blue-500 text-sm sm:text-base" href="/film">Film</a></li>
+          <li><a className="hover:text-blue-500 text-sm sm:text-base" href="/mylist">Daftar Saya</a></li>
 
-          <ul className="hidden md:flex items-center gap-20">
-            <li><a className="hover:text-blue-500" href="/series">Series</a></li>
-            <li><a className="hover:text-blue-500" href="/film">Film</a></li>
-            <li><a className="hover:text-blue-500" href="#">Daftar Saya</a></li>
-          </ul>
-        </div>
+        </ul>
+      </div>
 
         {/* Right */}
         <div className="relative" ref={refWrap}>

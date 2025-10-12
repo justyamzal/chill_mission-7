@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Button from "../Elements/Button";
 import Badge from "../Elements/Badge";
+import GenreDropdown from "../Elements/GenreDropdown";
 
 export default function FilmHero({ genres = [], onGenreChange }) {
   const [open, setOpen] = useState(false);
@@ -34,11 +35,7 @@ export default function FilmHero({ genres = [], onGenreChange }) {
       <div className="hero-feather" />
 
       {/* Tombol Genre (overlay, tidak menggeser layout) */}
-      <div
-        ref={dropRef}
-        className="absolute z-30"
-        style={{ top: "60px", left: "80px" }}
-      >
+      <div ref={dropRef} className="absolute z-30 left-3 top-[60px] sm:left-[80px]">
         <button
           onClick={() => setOpen(o => !o)}
           className="flex items-center justify-between w-[128px] px-5 py-2
@@ -55,8 +52,7 @@ export default function FilmHero({ genres = [], onGenreChange }) {
 
         {open && (
           <div
-            className="absolute mt-3 p-4 z-40
-                       bg-[#181A1C]/95 backdrop-blur-md text-white
+            className="absolute mt-3 p-4 z-40 bg-[#181A1C]/95 backdrop-blur-md text-white
                        border border-white/20 rounded-2xl
                        shadow-[0_10px_40px_rgba(0,0,0,0.35)]
                        grid grid-cols-2 gap-x-6 gap-y-2"

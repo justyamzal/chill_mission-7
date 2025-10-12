@@ -69,6 +69,10 @@ html, body, #root {
 .reco-slide img {
    width: 234px; height: 365px; border-radius: 8px; object-fit: cover; 
 }
+.reco-slide img {
+   border-radius: 8px; object-fit: cover; 
+}
+
 @media (max-width: 480px) {
   .reco-slide img { width: 95.6px; height: 143.39px; }
 }

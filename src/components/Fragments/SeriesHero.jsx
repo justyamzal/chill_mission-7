@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Button from "../Elements/Button";
 import Badge from "../Elements/Badge";
+import GenreDropdown from "../Elements/GenreDropdown";
 
 export default function SeriesHero({ genres = [], onGenreChange }) {
   const [open, setOpen] = useState(false);
@@ -26,7 +27,7 @@ export default function SeriesHero({ genres = [], onGenreChange }) {
       <div className="hero-feather" /> */}
 
       {/* Button Genre (overlay) */}
-      <div ref={dropRef} className="absolute z-30" style={{ top: "60px", left: "80px" }}>
+      <div ref={dropRef} className="absolute z-30 left-3 top-[60px] sm:left-[80px]">
         <button
           onClick={() => setOpen(o => !o)} className="flex items-center justify-between w-[128px] px-5 py-2 rounded-2xl bg-[#181A1C]/70 border border-white/20
         text-white font-medium hover:bg-[#3D4142]/70 transition">
