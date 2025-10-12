@@ -26,8 +26,8 @@ export default function SeriesHero({ genres = [], onGenreChange }) {
       {/* <div className="hero-overlay" />
       <div className="hero-feather" /> */}
 
-      {/* Button Genre (overlay) */}
-      <GenreDropdown genres={genres} onPick={onGenreChange} />
+      {/*----- Button Genre (overlay) ----- */}
+      <GenreDropdown genres={genres} onPick={onGenreChange} className="hidden md:block" />
 
       {/* Konten kiri – ukuran & spacing samakan dengan Home */}
       <div className="relative z-10 px-5 md:px-20 lg:px-24 pt-20 sm:pt-72">
