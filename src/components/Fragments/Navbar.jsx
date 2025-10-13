@@ -23,10 +23,10 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="w-full px-5 md:px-20 py-3 md:py-6 relative z-50">
+    <header className="w-full px-5 md:px-20 py-3 md:py-6 relative z-50 [@media(max-width:360px)]:px-[10px]">
       <nav className="flex items-center justify-between ">
         {/* Left */}
-        <div className="flex items-center gap-3 sm:gap-5 md:gap-20 ml-[20px] sm:ml-0">
+        <div className="flex items-center gap-3 sm:gap-5 md:gap-20 sm:ml-0">
           {/* desktop logo */}
           <a href="/home" className="hidden md:block">
             <img src="/icon/logo.svg" alt="logo" className="w-[104px]" />
@@ -35,44 +35,44 @@ export default function Navbar() {
           <a href="/home" className="md:hidden !m-0 mr-3 sm:mr-0">
             <img src="/icon/chill-icon.svg" alt="chill" className="block w-6 h-6" />
           </a>
-          <ul className="flex items-center gap-3 [@media(max-width:637px)]:gap-4 sm:gap-10 md:gap-20 ml-0">
-            <li>
-              <a className="hover:text-blue-500 text-sm sm:text-base px-2" href="/series">Series</a>
-            </li>
-            <li>
-              <a className="hover:text-blue-500 text-sm sm:text-base px-2" href="/film">Film</a>
-            </li>
-            <li>
-              <a className="hover:text-blue-500 text-sm sm:text-base px-2" href="/mylist">Daftar Saya</a>
-            </li>
-            {/* Dropdown Genre */}
-            <li className="relative md:hidden" ref={refGenre}>
-              <button
-                type="button"
-                className="flex items-center gap-1 text-sm sm:text-base px-2 hover:text-blue-500 focus:outline-none bg-transparent border-0"
-                onClick={() => setOpenGenre((v) => !v)}
-              >
-                Genre
-                <svg className={`w-3 h-3 transition-transform ${openGenre ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-              </button>
-              {openGenre && (
-                <div className="absolute left-0 mt-2 min-w-[120px] bg-[#181A1C] border border-white/20 rounded shadow-lg z-40 py-2">
-                  {genres.map((g) => (
-                    <button
-                      key={g}
-                      onClick={() => { setOpenGenre(false); /* lakukan sesuatu jika perlu */ }}
-                      className="block w-full text-left px-4 py-2 text-sm text-white hover:text-blue-500 hover:bg-white/5 transition-colors"
-                      type="button"
-                    >
-                      {g}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </li>
-          </ul>
+          <ul className="flex items-center gap-3 [@media(max-width:637px)]:gap-1 md:gap-20 ml-0">
+          <li>
+            <a className="text-xs sm:text-sm md:text-base hover:text-blue-500 px-2" href="/series">Series</a>
+          </li>
+          <li>
+            <a className="text-xs sm:text-sm md:text-base hover:text-blue-500 px-2" href="/film">Film</a>
+          </li>
+          <li>
+            <a className="text-xs sm:text-sm md:text-base hover:text-blue-500 px-2" href="/mylist">Daftar Saya</a>
+          </li>
+          {/* Dropdown Genre */}
+          <li className="relative block md:hidden" ref={refGenre}>
+            <button
+              type="button"
+              className="flex items-center gap-1 text-xs sm:text-sm md:text-base px-2 hover:text-blue-500 focus:outline-none bg-transparent border-0"
+              onClick={() => setOpenGenre((v) => !v)}
+            >
+              Genre
+              <svg className={`w-3 h-3 transition-transform ${openGenre ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            {openGenre && (
+              <div className="absolute left-0 mt-2 min-w-[120px] bg-[#181A1C] border border-white/20 rounded shadow-lg z-40 py-2">
+                {genres.map((g) => (
+                  <button
+                    key={g}
+                    onClick={() => { setOpenGenre(false); /* lakukan sesuatu jika perlu */ }}
+                    className="block w-full text-left px-4 py-2 text-sm text-white hover:text-blue-500 hover:bg-white/5 transition-colors"
+                    type="button"
+                  >
+                    {g}
+                  </button>
+                ))}
+              </div>
+            )}
+          </li>
+        </ul>
         </div>
 
         {/* Right */}

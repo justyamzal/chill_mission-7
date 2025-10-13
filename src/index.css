@@ -32,6 +32,9 @@ html, body, #root {
    fill: white !important; 
 }
 
+
+
+
 /* --- Posisi arrow per section --- */
 /* History (landscape) */
 .history-carousel .splide__arrow--prev { 
@@ -115,3 +118,19 @@ html, body, #root {
 
 /* opsional: bantu keterbacaan judul */
 .text-shadow { text-shadow: 0 1px 8px rgba(0,0,0,0.35); }
+
+
+/* Display Mobile */
+@layer utilities {
+  @media (max-width: 360px) {
+    .hero-225 {
+      height: 225px !important;
+      max-height: 225px !important;
+    }
+    .hero-225-inner {
+      padding: 4.1rem 1.3rem !important; /* pt-10 */
+      gap: .75rem !important;         /* gap-3 */
+    }
+  }
+}
+

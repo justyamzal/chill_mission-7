@@ -54,48 +54,50 @@ export default function CarouselRow({
       className={`w-full px-5 md:px-20 py-5 md:py-10 ${variant === "history" ? "history-carousel" : "poster-carousel"}`}>
 
       {title && <h3 className="text-2xl sm:text-[32px] font-bold pb-6">{title}</h3>}
-<Splide options={opts}>
-  {items.map((it, i) => (
-    <SplideSlide key={it.id ?? i}>
-      {variant === "poster" ? (
-        // Poster: pakai CSS .reco-slide img -> 234x365 (dengan media query kamu)
-        <div className="relative reco-slide rounded-lg overflow-hidden">
-          <img
-            src={it.src}
-            alt={it.title ?? `item ${i + 1}`}
-            className="object-cover"
-            loading="lazy"
-          />
-        </div>
-      ) : (
-        // History: tetap landscape dengan tinggi fix 162px
-        <div className="relative w-full h-[162px] overflow-hidden rounded-lg">
-          <img
-            src={it.src}
-            alt={it.title ?? `item ${i + 1}`}
-            className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
-          />
-          {(it.title || it.rating) && (
-            <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 to-transparent">
-              <div className="flex items-center justify-between">
-                <div className="font-semibold text-sm line-clamp-1">{it.title}</div>
-                {it.rating !== undefined && it.rating !== "" && (
-                  <div className="flex items-center gap-1 text-xs">
-                    <img src="/icon/star.svg" alt="rating" className="size-4" />
-                      <span>
-                        {typeof it.rating === "string" ? it.rating : `${Number(it.rating).toFixed(1).replace(/\.0$/, "")}/5`}
-                      </span>
+      <Splide options={opts}>
+        {items.map((it, i) => (
+          <SplideSlide key={it.id ?? i}>
+            {variant === "poster" ? (
+              // Poster: pakai CSS .reco-slide img -> 234x365 (dengan media query kamu)
+              <div className="relative group"> 
+                <div className="relative reco-slide rounded-lg overflow-hidden">
+                  <img
+                    src={it.src}
+                    alt={it.title ?? `item ${i + 1}`}
+                    className="object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            ) : (
+              // History: tetap landscape dengan tinggi fix 162px
+              <div className="relative w-full h-[162px] overflow-hidden rounded-lg">
+                <img
+                  src={it.src}
+                  alt={it.title ?? `item ${i + 1}`}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
+                />
+                {(it.title || it.rating) && (
+                  <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 to-transparent">
+                    <div className="flex items-center justify-between">
+                      <div className="font-semibold text-sm line-clamp-1">{it.title}</div>
+                      {it.rating !== undefined && it.rating !== "" && (
+                        <div className="flex items-center gap-1 text-xs">
+                          <img src="/icon/star.svg" alt="rating" className="size-4" />
+                            <span>
+                              {typeof it.rating === "string" ? it.rating : `${Number(it.rating).toFixed(1).replace(/\.0$/, "")}/5`}
+                            </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
-            </div>
-          )}
-        </div>
-      )}
-    </SplideSlide>
-  ))}
-</Splide>
+            )}
+          </SplideSlide>
+        ))}
+      </Splide>
 
     </section>
   );
