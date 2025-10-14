@@ -55,7 +55,7 @@ export default function Manage() {
 
   // derive (filter + sort + page)
   const {
-    sorted, total, totalPages, safePage,
+    total, totalPages, safePage,
     start, end, pageItems, isMobile, mobileCount, mobileItems
   } = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -86,30 +86,30 @@ export default function Manage() {
     const mobileCount = Math.min(sorted.length, safePage * perPage);
     const mobileItems = sorted.slice(0, mobileCount);
 
-    return {
-      sorted, total, totalPages, safePage,
-      start: startIdx + 1, end: endIdx, pageItems,
-      isMobile, mobileCount, mobileItems
-    };
-  }, [items, query, page, perPage]);
+      return {
+        sorted, total, totalPages, safePage,
+        start: startIdx + 1, end: endIdx, pageItems,
+        isMobile, mobileCount, mobileItems
+      };
+    }, [items, query, page, perPage]);
 
-  // list handlers
-  const goto = (p) => setPage(Math.min(Math.max(1, p), totalPages));
-  const onEditItem = (it) => {
-    setEditingId(it.id);
-    setForm({
-      id: it.id,
-      nama_tayangan: it.nama_tayangan,
-      tahun: it.tahun || "",
-      nominasi: it.nominasi,
-      genre: it.genre,
-      kategori: it.kategori,
-      foto_sampul: it.foto_sampul,
-      rating: (it.rating ?? "").toString(),
-    });
-    setImgMode(it.foto_sampul?.startsWith("data:") ? "upload" : "url");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+    // list handlers
+    const goto = (p) => setPage(Math.min(Math.max(1, p), totalPages));
+    const onEditItem = (it) => {
+      setEditingId(it.id);
+      setForm({
+        id: it.id,
+        nama_tayangan: it.nama_tayangan,
+        tahun: it.tahun || "",
+        nominasi: it.nominasi,
+        genre: it.genre,
+        kategori: it.kategori,
+        foto_sampul: it.foto_sampul,
+        rating: (it.rating ?? "").toString(),
+      });
+      setImgMode(it.foto_sampul?.startsWith("data:") ? "upload" : "url");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
   const onDeleteItem = (it) => {
     if (confirm(`Hapus "${it.nama_tayangan}"?`)) {
       removeShow(it.id);

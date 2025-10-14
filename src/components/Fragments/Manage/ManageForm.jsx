@@ -9,35 +9,44 @@ const GENRES = [
   "Komedi","Petualangan","Perang","Romantis","Sains & Alam","Thriller",
 ];
 
-export default function ManageForm({
-  form, setForm,
-  imgMode, setImgMode,
-  editingId,
-  onSubmit,
-}) {
-  function onChange(e) {
-    const { name, value } = e.target;
-    setForm((s) => {
-      if (name === "rating") {
-        const num = Math.max(0, Math.min(5, parseFloat(value || "")));
-        return { ...s, rating: Number.isNaN(num) ? "" : String(num) };
-      }
-      return { ...s, [name]: value };
-    });
-  }
+  export default function ManageForm({
+    form, setForm,
+    imgMode, setImgMode,
+    editingId,
+    onSubmit,
+  }) {
+    function onChange(e) {
+      const { name, value } = e.target;
+      setForm((s) => {
+        if (name === "rating") {
+          const num = Math.max(0, Math.min(5, parseFloat(value || "")));
+          return { ...s, rating: Number.isNaN(num) ? "" : String(num) };
+        }
+        return { ...s, [name]: value };
+      });
+    }
 
   async function onPickFile(e) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Mode poster = selain "history"
     const isPoster = form.nominasi !== "history";
-    const target = isPoster ? { w: 234, h: 365 } : { w: 302, h: 162 };
+
+    // Target aman (tanpa ukuran hover)
+    const posterTarget    = { w: 600, h: 900 };  // 2:3
+    const landscapeTarget = { w: 800, h: 450 };  // 16:9-ish
+
+    const target = isPoster ? posterTarget : landscapeTarget;
+
     try {
-      const dataUrl = await compressImage(file, target.w, target.h, 0.82);
-      setForm(s => ({ ...s, foto_sampul: dataUrl }));
+      const dataUrl = await compressImage(file, target.w, target.h, 0.9);
+      setForm((s) => ({ ...s, foto_sampul: dataUrl }));
     } catch {
       alert("Gagal memproses gambar.");
     }
   }
+
 
   return (
     <section className="bg-white/5 border border-white/10 rounded-2xl p-5 md:p-6 space-y-4">
@@ -46,14 +55,13 @@ export default function ManageForm({
         <Input label="Nama tayangan" name="nama_tayangan" value={form.nama_tayangan} onChange={onChange} required />
         <Input label="Tahun terbit" name="tahun" type="number" value={form.tahun} onChange={onChange} placeholder="2024" />
 
-        <Select label="Nominasi (kolom carousel)" name="nominasi" value={form.nominasi} onChange={onChange}
-          options={[
+        <Select className="" label="Nominasi (kolom carousel)" name="nominasi" value={form.nominasi} onChange={onChange} options={[
             ["history","History (Melanjutkan)"],
             ["top","Top Rating Film & Series Hari ini"],
             ["original","Persembahan Chill"],
             ["trending","Trending"],
             ["new","Rilis Baru"],
-          ]} />
+          ]}></Select>
 
         <Input label="Rating (0–5)" name="rating" type="number" min="0" max="5" step="0.1" value={form.rating} onChange={onChange} placeholder="mis. 4.5" />
 

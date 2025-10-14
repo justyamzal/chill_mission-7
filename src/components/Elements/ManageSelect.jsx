@@ -7,8 +7,7 @@ export default function ManageSelect({ label, options, className = "", ...props 
       {label && <span className="text-sm text-white/80">{label}</span>}
       <select
         {...props}
-        className="rounded-xl border border-white/20 bg-transparent px-4 py-2 outline-none focus:border-white/40"
-      >
+        className="rounded-xl border border-white/20 bg-[#242628] px-4 py-2 outline-none focus:border-white/40">
         {options.map(([val, text]) => (
           <option key={val} value={val}>{text}</option>
         ))}
