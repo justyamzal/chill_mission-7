@@ -86,8 +86,11 @@ function getEpisodes(it) {
 export default function CarouselRow({
   title,
   items = [],
-  variant = "poster",   // "poster" | "history"
+  variant = "poster",
   options = {},
+  hoverMode = "hover",       // "hover" | "click"
+  hoverOpenDelay = 300,      // tweak sensivitas
+  hoverCloseDelay = 140,
 }) {
   if (!items.length) return null;
 
@@ -119,23 +122,25 @@ export default function CarouselRow({
           const genre = getFirstGenre(it);
 
           return (
-            <SplideSlide key={it.id ?? i}>
-              {variant === "poster" ? (
-                <HoverCard poster={poster} title={name} age={age} episodes={eps} genre={genre}>
-                  {/* Kartu normal (ukuran tetap) */}
-                  <div className="relative reco-slide rounded-lg overflow-hidden
-                    transition-transform duration-200 ease-[cubic-bezier(.2,.8,.2,1)]
-                    group-hover:scale-[1.03]">
-                    <img
-                      src={poster}
-                      alt={name}
-                      className="object-cover select-none"
-                      draggable="false"
-                      loading="lazy"
-                    />
-                  </div>
-                </HoverCard>
-              ) : (
+        <SplideSlide key={it.id ?? i}>
+          {variant === "poster" ? (
+            <HoverCard
+              poster={poster}
+              title={name}
+              age={age}
+              episodes={eps}
+              genre={genre}
+              trigger={hoverMode}
+              openDelay={hoverOpenDelay}
+              closeDelay={hoverCloseDelay}
+            >
+              <div className="relative reco-slide rounded-lg overflow-hidden
+                transition-transform duration-200 ease-[cubic-bezier(.2,.8,.2,1)]
+                group-hover:scale-[1.03]">
+                <img src={poster} alt={name} className="object-cover select-none" draggable="false" loading="lazy" />
+              </div>
+            </HoverCard>
+          ) : (
                 <div className="relative w-full h-[162px] overflow-hidden rounded-lg">
                   <img
                     src={poster}

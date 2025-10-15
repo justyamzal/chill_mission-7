@@ -8,16 +8,22 @@ export default function HoverCard({
   age,
   episodes,
   genre,
+  // NEW: kontrol perilaku
+  trigger = "hover",            // "hover" | "click"
+  openDelay = 300,              // kurangi sensitivitas hover
+  closeDelay = 140,             // tutup sedikit setelah mouse keluar
+  withBackdropOnClick = true,   // backdrop khusus saat trigger="click"
 }) {
   const triggerRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState({ left: 0, top: 0 });
   const [place, setPlace] = useState("above"); // "above" | "below"
 
-  const PANEL = { w: 360, h: 468 };
+  // spesifikasi panel
+  const PANEL = { w: 350, h: 460 };
   const MARGIN = 12;
 
-  // Fallback badges (di sini, bukan di CarouselRow)
+  // fallback badges
   const displayTitle = title ?? "";
   const displayGenre =
     Array.isArray(genre) ? (genre[0] ?? "TBD")
@@ -28,8 +34,10 @@ export default function HoverCard({
       ? `${episodes} Episode`
       : (typeof episodes === "string" && episodes.trim() ? episodes : "TBD");
 
-  const openPanel = () => {
+  // hitung posisi (lebih prefer di atas; ke bawah bila bawah jauh lebih lapang)
+  const computeAndOpen = () => {
     if (!triggerRef.current) return;
+
     const r = triggerRef.current.getBoundingClientRect();
     const vw = window.innerWidth;
     const vh = window.innerHeight;
@@ -37,7 +45,6 @@ export default function HoverCard({
     const spaceAbove = r.top - MARGIN;
     const spaceBelow = vh - r.bottom - MARGIN;
 
-    // Lebih “suka” di atas; ke bawah hanya jika jauh lebih lapang
     let placement = "above";
     if (spaceAbove >= PANEL.h + 20) placement = "above";
     else if (spaceBelow >= PANEL.h + 20) placement = "below";
@@ -63,111 +70,142 @@ export default function HoverCard({
     setOpen(true);
   };
 
+  // close handlers
+  const hardClose = () => setOpen(false);
+
+  // tutup saat scroll/resize/esc
   useEffect(() => {
     if (!open) return;
     const onScroll = () => setOpen(false);
     const onResize = () => setOpen(false);
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize, { passive: true });
+    window.addEventListener("keydown", onKey);
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("keydown", onKey);
     };
   }, [open]);
 
-  const leaveTimer = useRef(null);
-  const handleEnter = () => {
-    if (leaveTimer.current) clearTimeout(leaveTimer.current);
-    openPanel();
+  // ====== MODE HOVER ======
+  const openTimer = useRef(null);
+  const closeTimer = useRef(null);
+
+  const onMouseEnter = () => {
+    if (trigger !== "hover") return;
+    clearTimeout(closeTimer.current);
+    openTimer.current = setTimeout(computeAndOpen, openDelay);
   };
-  const handleLeave = () => {
-    leaveTimer.current = setTimeout(() => setOpen(false), 120);
+  const onMouseLeave = () => {
+    if (trigger !== "hover") return;
+    clearTimeout(openTimer.current);
+    closeTimer.current = setTimeout(() => setOpen(false), closeDelay);
   };
 
+  // ====== MODE CLICK ======
+  const onClickTrigger = () => {
+    if (trigger !== "click") return;
+    if (!open) computeAndOpen();
+  };
+
+  // animasi halus
   const translateClass = place === "above" ? "-translate-y-1.5" : "translate-y-1.5";
 
-  const overlay = open
-    ? createPortal(
+  const card = (
+    <div
+      onMouseEnter={trigger === "hover" ? onMouseEnter : undefined}
+      onMouseLeave={trigger === "hover" ? onMouseLeave : undefined}
+      onClick={onClickTrigger}
+      ref={triggerRef}
+      className="group"
+    >
+      {children}
+    </div>
+  );
+
+  const overlay = !open ? null : createPortal(
+    <>
+      {trigger === "click" && withBackdropOnClick && (
         <div
-          onMouseEnter={handleEnter}
-          onMouseLeave={handleLeave}
-          style={{
-            position: "fixed",
-            left: pos.left,
-            top: pos.top,
-            width: PANEL.w,
-            height: PANEL.h,
-            zIndex: 70,
-          }}
-          className={[
-            "rounded-2xl shadow-2xl ring-1 ring-black/10 overflow-hidden",
-            "bg-[#1e1f21] text-white",
-            "opacity-100 will-change-transform will-change-opacity",
-            "transition-all duration-200 ease-[cubic-bezier(.2,.8,.2,1)]",
-            translateClass,
-          ].join(" ")}
-        >
-          {/* Gambar 408×264 */}
-          <div className="w-full h-[264px] overflow-hidden bg-black">
-            <img
-              src={poster}
-              alt={displayTitle}
-              className="w-full h-full object-cover"
-              draggable="false"
-            />
+          onClick={hardClose}
+          className="fixed inset-0 z-[69] bg-black/20"
+        />
+      )}
+      <div
+        onMouseEnter={trigger === "hover" ? onMouseEnter : undefined}
+        onMouseLeave={trigger === "hover" ? onMouseLeave : undefined}
+        style={{
+          position: "fixed",
+          left: pos.left,
+          top: pos.top,
+          width: PANEL.w,
+          height: PANEL.h,
+          zIndex: 70,
+        }}
+        className={[
+          "rounded-2xl shadow-2xl ring-1 ring-black/10 overflow-hidden",
+          "bg-[#1e1f21] text-white",
+          "opacity-100 will-change-transform will-change-opacity",
+          "transition-all duration-200 ease-[cubic-bezier(.2,.8,.2,1)]",
+          translateClass,
+        ].join(" ")}
+      >
+        {/* Gambar 408×264 */}
+        <div className="w-full h-[264px] overflow-hidden bg-black">
+          <img
+            src={poster}
+            alt={displayTitle}
+            className="w-full h-full object-cover"
+            draggable="false"
+          />
+        </div>
+
+        {/* Body */}
+        <div className="p-4">
+          {displayTitle && (
+            <h4 className="text-[17px] font-semibold leading-snug line-clamp-2 mb-3">
+              {displayTitle}
+            </h4>
+          )}
+
+          {/* Tombol */}
+          <div className="flex items-center gap-3">
+            <button className="w-[45px] h-[45px] rounded-full bg-white text-black grid place-items-center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </button>
+            <button className="w-[45px] h-[45px] rounded-full bg-white/10 grid place-items-center ring-1 ring-white/20">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </button>
+            <button className="w-[45px] h-[45px] rounded-full bg-white/10 grid place-items-center ring-1 ring-white/20 ml-auto">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
           </div>
 
-          {/* Body */}
-          <div className="p-4">
-            {displayTitle && (
-              <h4 className="text-[17px] font-semibold leading-snug line-clamp-2 mb-3">
-                {displayTitle}
-              </h4>
-            )}
-
-            {/* Tombol */}
-            <div className="flex items-center gap-3">
-              <button className="w-[45px] h-[45px] rounded-full bg-white text-black grid place-items-center">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </button>
-              <button className="w-[45px] h-[45px] rounded-full bg-white/10 grid place-items-center ring-1 ring-white/20">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-              </button>
-              <button className="w-[45px] h-[45px] rounded-full bg-white/10 grid place-items-center ring-1 ring-white/20 ml-auto">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Badges */}
-            <div className="mt-4 flex items-center gap-3 text-sm">
-              <span className="px-2 py-1 rounded bg-white/10">{displayAge}</span>
-              <span className="px-2 py-1 rounded bg-white/10">{displayEpisodes}</span>
-            </div>
-            <div className="mt-3 flex items-center gap-3 text-sm">
-              <span className="px-2 py-1 rounded bg-white/10">{displayGenre}</span>
-            </div>
+          {/* Badges */}
+          <div className="mt-4 flex items-center gap-3 text-sm">
+            <span className="px-2 py-1 rounded bg-white/10">{displayAge}</span>
+            <span className="px-2 py-1 rounded bg-white/10">{displayEpisodes}</span>
           </div>
-        </div>,
-        document.body
-      )
-    : null;
+          <div className="mt-3 flex items-center gap-3 text-sm">
+            <span className="px-2 py-1 rounded bg-white/10">{displayGenre}</span>
+          </div>
+        </div>
+      </div>
+    </>,
+    document.body
+  );
 
   return (
     <>
-      <div
-        ref={triggerRef}
-        onMouseEnter={handleEnter}
-        onMouseLeave={handleLeave}
-        className="group"
-      >
-        {children}
-      </div>
+      {card}
       {overlay}
     </>
   );
