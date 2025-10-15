@@ -172,20 +172,17 @@ export default function HoverCard({
 
           {/* Tombol */}
           <div className="flex items-center gap-3">
-            <button className="w-[45px] h-[45px] rounded-full bg-white text-black grid place-items-center">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z" />
-              </svg>
+            <button className="w-[45px] h-[45px] rounded-full bg-white text-black grid place-items-center cursor-pointer transition">
+              <i className="fa-solid fa-play" width="22" height="22"></i>
             </button>
-            <button className="w-[45px] h-[45px] rounded-full bg-white/10 grid place-items-center ring-1 ring-white/20">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
+            <button className="w-[45px] h-[45px] rounded-full bg-white/10 grid place-items-center ring-1 ring-white/20
+             cursor-pointer transition hover:bg-white/20 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/40 pointer-events-auto">
+              <i className="fa-solid fa-caret-down" width="22" height="22"></i>
             </button>
-            <button className="w-[45px] h-[45px] rounded-full bg-white/10 grid place-items-center ring-1 ring-white/20 ml-auto">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                <path d="M6 9l6 6 6-6" />
-              </svg>
+            <button type="button" aria-label="add to list"
+             className="w-[45px] h-[45px] rounded-full bg-white/10 grid place-items-center ring-1 ring-white/20 ml-auto
+             cursor-pointer transition hover:bg-white/20 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/40 pointer-events-auto">
+              <i className="fa-solid fa-plus" width="22" height="22"></i>
             </button>
           </div>
 
