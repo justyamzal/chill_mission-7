@@ -27,12 +27,18 @@ export default function Film() {
     src: s.foto_sampul,
     title: s.nama_tayangan,
     rating: s.rating,
+    genre: s.genre,
+    tahun: s.tahun,
+    kategori: s.kategori,
   });
   const mapPoster = (s, i) => ({
     id: s.id ?? `film-${i}`,
     src: s.foto_sampul,
     title: s.nama_tayangan,
     rating: s.rating,
+    genre: s.genre,
+    tahun: s.tahun,
+    kategori: s.kategori,
   });
 
   const pick = (nominasi, mapper = mapPoster) =>

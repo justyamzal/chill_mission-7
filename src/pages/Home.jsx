@@ -26,7 +26,7 @@ const newItems = [
 
 export default function Home() {
   const { items } = useShows();
-  const toSlide = (s) => ({ src: s.foto_sampul, title: s.nama_tayangan, rating: s.rating });
+  const toSlide = (s) => ({ src: s.foto_sampul, title: s.nama_tayangan, rating: s.rating, genre: s.genre, tahun: s.tahun, kategori: s.kategori });
   const extraHistory  = items.filter(s => s.nominasi === "history").map(toSlide);
   const extraTop      = items.filter(s => s.nominasi === "top").map(toSlide);
   const extraTrending = items.filter(s => s.nominasi === "trending").map(toSlide);

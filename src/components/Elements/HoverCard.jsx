@@ -1,106 +1,209 @@
-// src/components/Elements/HoverCard.jsx
-import { useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 export default function HoverCard({
-  imageSrc,
-  title = "Judul Tayangan",
-  genre = "Genre",
-  ageText = "TBD",
-  episodesText = "TBD",
+  children,
+  poster,
+  title,
+  age,
+  episodes,
+  genre,
+  // NEW: kontrol perilaku
+  trigger = "hover",            // "hover" | "click"
+  openDelay = 300,              // kurangi sensitivitas hover
+  closeDelay = 140,             // tutup sedikit setelah mouse keluar
+  withBackdropOnClick = true,   // backdrop khusus saat trigger="click"
 }) {
-  const cardRef = useRef(null);
-  const [align, setAlign] = useState("left"); // 'left' | 'right'
+  const triggerRef = useRef(null);
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState({ left: 0, top: 0 });
+  const [place, setPlace] = useState("above"); // "above" | "below"
 
-  const handleEnter = useCallback(() => {
-    const el = cardRef.current;
-    if (!el) return;
-    // sementara posisikan ke kiri dulu untuk hitung
-    el.style.left = "0px";
-    el.style.right = "auto";
-    const r = el.getBoundingClientRect();
-    const pad = 16; // margin aman viewport
+  // spesifikasi panel
+  const PANEL = { w: 350, h: 460 };
+  const MARGIN = 12;
 
-    if (r.right > window.innerWidth - pad) {
-      setAlign("right"); // flip ke kanan bila mentok kanan
-    } else if (r.left < pad) {
-      setAlign("left"); // paksa kiri bila mentok kiri
+  // fallback badges
+  const displayTitle = title ?? "";
+  const displayGenre =
+    Array.isArray(genre) ? (genre[0] ?? "TBD")
+    : (typeof genre === "string" && genre.trim() ? genre.trim() : "TBD");
+  const displayAge = (age === 0 || age) ? String(age) : "TBD";
+  const displayEpisodes =
+    (typeof episodes === "number" && episodes > 0)
+      ? `${episodes} Episode`
+      : (typeof episodes === "string" && episodes.trim() ? episodes : "TBD");
+
+  // hitung posisi (lebih prefer di atas; ke bawah bila bawah jauh lebih lapang)
+  const computeAndOpen = () => {
+    if (!triggerRef.current) return;
+
+    const r = triggerRef.current.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    const spaceAbove = r.top - MARGIN;
+    const spaceBelow = vh - r.bottom - MARGIN;
+
+    let placement = "above";
+    if (spaceAbove >= PANEL.h + 20) placement = "above";
+    else if (spaceBelow >= PANEL.h + 20) placement = "below";
+    else placement = (spaceBelow - spaceAbove) > 40 ? "below" : "above";
+
+    let left = r.left + r.width / 2 - PANEL.w / 2;
+    left = Math.max(MARGIN, Math.min(left, vw - MARGIN - PANEL.w));
+
+    let top;
+    if (placement === "above") {
+      top = r.top - (PANEL.h - r.height) - 8;
+      if (top < MARGIN) top = Math.min(vh - PANEL.h - MARGIN, r.bottom + 8);
+    } else {
+      top = r.bottom + 8;
+      if (top + PANEL.h > vh - MARGIN) {
+        top = Math.max(MARGIN, r.top - (PANEL.h - r.height) - 8);
+        placement = "above";
+      }
     }
-  }, []);
+
+    setPlace(placement);
+    setPos({ left, top: Math.max(MARGIN, Math.min(top, vh - MARGIN - PANEL.h)) });
+    setOpen(true);
+  };
+
+  // close handlers
+  const hardClose = () => setOpen(false);
+
+  // tutup saat scroll/resize/esc
+  useEffect(() => {
+    if (!open) return;
+    const onScroll = () => setOpen(false);
+    const onResize = () => setOpen(false);
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  // ====== MODE HOVER ======
+  const openTimer = useRef(null);
+  const closeTimer = useRef(null);
+
+  const onMouseEnter = () => {
+    if (trigger !== "hover") return;
+    clearTimeout(closeTimer.current);
+    openTimer.current = setTimeout(computeAndOpen, openDelay);
+  };
+  const onMouseLeave = () => {
+    if (trigger !== "hover") return;
+    clearTimeout(openTimer.current);
+    closeTimer.current = setTimeout(() => setOpen(false), closeDelay);
+  };
+
+  // ====== MODE CLICK ======
+  const onClickTrigger = () => {
+    if (trigger !== "click") return;
+    if (!open) computeAndOpen();
+  };
+
+  // animasi halus
+  const translateClass = place === "above" ? "-translate-y-1.5" : "translate-y-1.5";
+
+  const card = (
+    <div
+      onMouseEnter={trigger === "hover" ? onMouseEnter : undefined}
+      onMouseLeave={trigger === "hover" ? onMouseLeave : undefined}
+      onClick={onClickTrigger}
+      ref={triggerRef}
+      className="group"
+    >
+      {children}
+    </div>
+  );
+
+  const overlay = !open ? null : createPortal(
+    <>
+      {trigger === "click" && withBackdropOnClick && (
+        <div
+          onClick={hardClose}
+          className="fixed inset-0 z-[69] bg-black/20"
+        />
+      )}
+      <div
+        onMouseEnter={trigger === "hover" ? onMouseEnter : undefined}
+        onMouseLeave={trigger === "hover" ? onMouseLeave : undefined}
+        style={{
+          position: "fixed",
+          left: pos.left,
+          top: pos.top,
+          width: PANEL.w,
+          height: PANEL.h,
+          zIndex: 70,
+        }}
+        className={[
+          "rounded-2xl shadow-2xl ring-1 ring-black/10 overflow-hidden",
+          "bg-[#1e1f21] text-white",
+          "opacity-100 will-change-transform will-change-opacity",
+          "transition-all duration-200 ease-[cubic-bezier(.2,.8,.2,1)]",
+          translateClass,
+        ].join(" ")}
+      >
+        {/* Gambar 408×264 */}
+        <div className="w-full h-[264px] overflow-hidden bg-black">
+          <img
+            src={poster}
+            alt={displayTitle}
+            className="w-full h-full object-cover"
+            draggable="false"
+          />
+        </div>
+
+        {/* Body */}
+        <div className="p-4">
+          {displayTitle && (
+            <h4 className="text-[17px] font-semibold leading-snug line-clamp-2 mb-3">
+              {displayTitle}
+            </h4>
+          )}
+
+          {/* Tombol */}
+          <div className="flex items-center gap-3">
+            <button className="w-[45px] h-[45px] rounded-full bg-white text-black grid place-items-center cursor-pointer transition">
+              <i className="fa-solid fa-play" width="22" height="22"></i>
+            </button>
+            <button className="w-[45px] h-[45px] rounded-full bg-white/10 grid place-items-center ring-1 ring-white/20
+             cursor-pointer transition hover:bg-white/20 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/40 pointer-events-auto">
+              <i className="fa-solid fa-caret-down" width="22" height="22"></i>
+            </button>
+            <button type="button" aria-label="add to list"
+             className="w-[45px] h-[45px] rounded-full bg-white/10 grid place-items-center ring-1 ring-white/20 ml-auto
+             cursor-pointer transition hover:bg-white/20 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/40 pointer-events-auto">
+              <i className="fa-solid fa-plus" width="22" height="22"></i>
+            </button>
+          </div>
+
+          {/* Badges */}
+          <div className="mt-4 flex items-center gap-3 text-sm">
+            <span className="px-2 py-1 rounded bg-white/10">{displayAge}</span>
+            <span className="px-2 py-1 rounded bg-white/10">{displayEpisodes}</span>
+          </div>
+          <div className="mt-3 flex items-center gap-3 text-sm">
+            <span className="px-2 py-1 rounded bg-white/10">{displayGenre}</span>
+          </div>
+        </div>
+      </div>
+    </>,
+    document.body
+  );
 
   return (
-    <div
-      ref={cardRef}
-      onMouseEnter={handleEnter}
-      className={[
-        // tampil saat hover
-        "invisible opacity-0 scale-95 group-hover:visible group-hover:opacity-100 group-hover:scale-100",
-        "transition-all duration-200 ease-out",
-        "pointer-events-none group-hover:pointer-events-auto",
-        // posisi dasar
-        "absolute z-50 top-[-14px] md:top-[-18px] xl:top-[-24px]",
-        align === "right" ? "right-0 left-auto" : "left-0",
-        // ukuran: lebih proporsional di md, full spek di xl
-        "w-[332px] h-[380px] md:w-[360px] md:h-[420px] xl:w-[408px] xl:h-[460px]",
-        "rounded-2xl overflow-hidden bg-[#252729] border border-white/10",
-        "shadow-[0_18px_50px_rgba(0,0,0,0.45)]",
-        // cegah nabrak viewport secara horizontal
-        "max-w-[calc(100vw-2rem)]",
-      ].join(" ")}
-      style={{ transformOrigin: "top left" }}
-    >
-      {/* Gambar */}
-      <div className="relative w-full h-[190px] md:h-[220px] xl:h-[264px]">
-        <img
-          src={imageSrc}
-          alt={title}
-          className="absolute inset-0 w-full h-full object-cover"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-      </div>
-
-      {/* Konten */}
-      <div className="p-4 md:p-5 flex flex-col gap-3.5 md:gap-4">
-        {/* Tombol */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5 md:gap-3">
-            <button
-              className="w-[44px] h-[44px] md:w-[48px] md:h-[48px] xl:w-[55px] xl:h-[55px] rounded-full bg-white text-black flex items-center justify-center"
-              aria-label="Play"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-            </button>
-            <button
-              className="w-[44px] h-[44px] md:w-[48px] md:h-[48px] xl:w-[55px] xl:h-[55px] rounded-full border border-white/20 bg-[#3D4142] text-white flex items-center justify-center"
-              aria-label="Tandai Selesai"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>
-            </button>
-          </div>
-
-          <button
-            className="w-[44px] h-[44px] md:w-[48px] md:h-[48px] xl:w-[55px] xl:h-[55px] rounded-full border border-white/20 bg-[#3D4142] text-white flex items-center justify-center"
-            aria-label="Detail"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-        </div>
-
-        {/* Badges */}
-        <div className="flex items-center gap-3 text-[12px] md:text-[13px] text-white/90">
-          <span className="px-2.5 py-1 rounded-full bg-white/10">{ageText}</span>
-          <span className="text-white/60">•</span>
-          <span className="px-2.5 py-1 rounded-full bg-white/10">{episodesText} Episode</span>
-        </div>
-
-        {/* Meta */}
-        <div className="flex flex-col gap-1">
-          <h4 className="text-base md:text-lg font-semibold line-clamp-1">{title}</h4>
-          <div className="flex items-center gap-2 text-sm text-white/85">
-            <span className="px-3 py-1 rounded-full bg-[#33373A]">{genre}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <>
+      {card}
+      {overlay}
+    </>
   );
 }
