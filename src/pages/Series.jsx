@@ -17,6 +17,9 @@ function Series() {
         src: s.foto_sampul,
         title: s.nama_tayangan,
         rating: s.rating,
+        genre: s.genre,
+        tahun: s.tahun,
+        kategori: s.kategori,
       }));
 
   return (
