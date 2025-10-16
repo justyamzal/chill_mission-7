@@ -15,7 +15,7 @@ const FILM_GENRES = [
 export default function Film() {
   const {
     loading, error, preloadGenres, fetchMovieRows,
-    movieLatest, movieRated, moviePopular, movieTrending, movieReleaseCerts,
+    movieRecommended, movieRated, moviePopular, movieTrending, movieUpcoming,
   } = useShowStore();
 
   const { getPatched } = useOverridesStore(); // opsional
@@ -37,11 +37,11 @@ export default function Film() {
       {error && <div className="px-6 md:px-12 lg:px-24 py-4 text-red-400">{error}</div>}
 
       <main className="flex flex-col gap-8">
-        <CarouselRow title="Latest Movies" items={patchAll(movieLatest)} />
+        <CarouselRow title="Recommended Movies" items={patchAll(movieRecommended)} />
         {!!movieRated.length && <CarouselRow title="Rated Movies (Guest Session)" items={patchAll(movieRated)} />}
         <CarouselRow title="Popular Movies" items={patchAll(moviePopular)} />
         <CarouselRow title="Trending Movies (Today)" items={patchAll(movieTrending)} />
-        <CarouselRow title="Release Certifications (US)" items={patchAll(movieReleaseCerts)} />
+        <CarouselRow title="Upcoming Films" items={patchAll(movieUpcoming)} />
       </main>
 
       {loading && <div className="px-6 md:px-12 lg:px-24 py-4 text-gray-400">Loading…</div>}
@@ -49,3 +49,4 @@ export default function Film() {
     </div>
   );
 }
+

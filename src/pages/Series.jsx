@@ -16,7 +16,7 @@ const SERIES_GENRES = [
 export default function Series() {
   const {
     loading, error, preloadGenres, fetchTVRows,
-    tvLatest, tvRated, tvPopular, tvTrending, tvAiringToday,
+    tvRecommended, tvRated, tvPopular, tvTrending, tvAiringToday,
   } = useShowStore();
 
   const { getPatched } = useOverridesStore(); // opsional
@@ -38,7 +38,7 @@ export default function Series() {
       {error && <div className="px-6 md:px-12 lg:px-24 py-4 text-red-400">{error}</div>}
 
       <main className="flex flex-col gap-8">
-        <CarouselRow title="Latest TV" items={patchAll(tvLatest)} />
+        <CarouselRow title="Recommended TV" items={patchAll(tvRecommended)} />
         {!!tvRated.length && <CarouselRow title="TV Rated (Guest Session)" items={patchAll(tvRated)} />}
         <CarouselRow title="Popular TV" items={patchAll(tvPopular)} />
         <CarouselRow title="Trending TV (Today)" items={patchAll(tvTrending)} />

@@ -3,10 +3,10 @@
 import { create } from "zustand";
 import {
   // Movies
-  getLatestMovie, getGuestRatedMovies, getPopularMovies, getTrendingMovies,
-  getMovieReleaseDates, pickCertification,
+  getGuestRatedMovies, getPopularMovies, getTrendingMovies, getUpcomingMovies,
+  getMovieReleaseDates, pickCertification, getMovieRecommendations,
   // TV
-  getLatestTV, getGuestRatedTV, getPopularTV, getTrendingTV, getTVAiringToday,
+  getGuestRatedTV, getPopularTV, getTrendingTV, getTVAiringToday, getTVRecommendations,
   // Common
   createGuestSession, mapTmdbToCard, getMovieGenres, getTVGenres,
 } from "../utils/tmdbService";
@@ -20,14 +20,15 @@ export const useShowStore = create((set, get) => ({
   guestId: localStorage.getItem("tmdb.guest_session_id") || null,
 
   // ==== MOVIE rows ====
-  movieLatest: [],      // array of 1
+  movieRecommended: [],      // array of recommendations
   movieRated: [],
   moviePopular: [],
   movieTrending: [],
   movieReleaseCerts: [],
+  movieUpcoming: [],
 
   // ==== TV rows ====
-  tvLatest: [],         // array of 1
+  tvRecommended: [],         // array of recommendations
   tvRated: [],
   tvPopular: [],
   tvTrending: [],
@@ -72,20 +73,22 @@ export const useShowStore = create((set, get) => ({
 
     const { genresMovieMap } = get();
     try {
-      // latest
-      let latest = [];
-      try {
-        const latestObj = await getLatestMovie(ac.signal);
-        console.log("Raw latest movie data:", latestObj);
-        if (latestObj && latestObj.id) {
-          latest = [mapTmdbToCard(latestObj, "film")];
-          console.log("Mapped latest movie data:", latest);
-        } else {
-          console.warn("Latest movie data is missing ID or is null:", latestObj);
+      // Get popular movies to use for recommendations
+      const popRes = await getPopularMovies(1, ac.signal);
+      const popularMovies = (popRes?.results || []).map(m => mapTmdbToCard(m, "film"));
+      
+      // Get recommendations based on popular movies
+      let recommendations = [];
+      if (popularMovies.length > 0) {
+        try {
+          // Get recommendations based on the first popular movie
+          const recRes = await getMovieRecommendations(popularMovies[0].id, 1, ac.signal);
+          recommendations = (recRes?.results || []).slice(0, 10).map(m => mapTmdbToCard(m, "film"));
+        } catch (error) {
+          console.error("Error fetching movie recommendations:", error);
+          // Fallback to popular movies if recommendations fail
+          recommendations = popularMovies.slice(0, 10);
         }
-      } catch (error) {
-        console.error("Error fetching latest movie:", error);
-        set({ error: error?.message || "Gagal memuat data movie terbaru" });
       }
 
       // rated (guest)
@@ -103,12 +106,9 @@ export const useShowStore = create((set, get) => ({
               }
             }
 
-      // popular & trending
-      const [popRes, trRes] = await Promise.all([
-        getPopularMovies(1, ac.signal),
-        getTrendingMovies("day", 1, ac.signal),
-      ]);
-      const popular = (popRes?.results || []).map(m => mapTmdbToCard(m, "film"));
+      // trending
+      const trRes = await getTrendingMovies("day", 1, ac.signal);
+      const popular = popularMovies;
       const trending = (trRes?.results || []).map(m => mapTmdbToCard(m, "film"));
 
       // release certifications (ambil dari 10 popular teratas)
@@ -127,12 +127,17 @@ export const useShowStore = create((set, get) => ({
         return { ...it, genre: name };
       });
 
+      // upcoming
+      const upRes = await getUpcomingMovies(1, ac.signal);
+      const upcoming = (upRes?.results || []).map(m => mapTmdbToCard(m, "film"));
+
       set({
-        movieLatest: addGenreName(latest),
+        movieRecommended: addGenreName(recommendations),
         movieRated: addGenreName(rated),
         moviePopular: addGenreName(popular),
         movieTrending: addGenreName(trending),
         movieReleaseCerts: addGenreName(certRows),
+        movieUpcoming: addGenreName(upcoming),
       });
     } catch (e) {
       set({ error: e?.message || "Gagal memuat data movie" });
@@ -149,20 +154,22 @@ export const useShowStore = create((set, get) => ({
 
     const { genresTVMap } = get();
     try {
-      // latest
-      let latest = [];
-      try {
-        const latestObj = await getLatestTV(ac.signal);
-        console.log("Raw latest TV data:", latestObj);
-        if (latestObj && latestObj.id) {
-          latest = [mapTmdbToCard(latestObj, "series")];
-          console.log("Mapped latest TV data:", latest);
-        } else {
-          console.warn("Latest TV data is missing ID or is null:", latestObj);
+      // Get popular TV shows to use for recommendations
+      const popRes = await getPopularTV(1, ac.signal);
+      const popularTV = (popRes?.results || []).map(tv => mapTmdbToCard(tv, "series"));
+      
+      // Get recommendations based on popular TV shows
+      let recommendations = [];
+      if (popularTV.length > 0) {
+        try {
+          // Get recommendations based on the first popular TV show
+          const recRes = await getTVRecommendations(popularTV[0].id, 1, ac.signal);
+          recommendations = (recRes?.results || []).slice(0, 10).map(tv => mapTmdbToCard(tv, "series"));
+        } catch (error) {
+          console.error("Error fetching TV recommendations:", error);
+          // Fallback to popular TV shows if recommendations fail
+          recommendations = popularTV.slice(0, 10);
         }
-      } catch (error) {
-        console.error("Error fetching latest TV:", error);
-        set({ error: error?.message || "Gagal memuat data TV terbaru" });
       }
 
       // rated (guest)
@@ -180,13 +187,12 @@ export const useShowStore = create((set, get) => ({
               }
             }
 
-      // popular, trending, airing today
-      const [popRes, trRes, airRes] = await Promise.all([
-        getPopularTV(1, ac.signal),
+      // trending, airing today
+      const [trRes, airRes] = await Promise.all([
         getTrendingTV("day", 1, ac.signal),
         getTVAiringToday(1, ac.signal),
       ]);
-      const popular = (popRes?.results || []).map(tv => mapTmdbToCard(tv, "series"));
+      const popular = popularTV;
       const trending = (trRes?.results || []).map(tv => mapTmdbToCard(tv, "series"));
       const airingToday = (airRes?.results || []).map(tv => mapTmdbToCard(tv, "series"));
 
@@ -198,7 +204,7 @@ export const useShowStore = create((set, get) => ({
       });
 
       set({
-        tvLatest: addGenreName(latest),
+        tvRecommended: addGenreName(recommendations),
         tvRated: addGenreName(rated),
         tvPopular: addGenreName(popular),
         tvTrending: addGenreName(trending),

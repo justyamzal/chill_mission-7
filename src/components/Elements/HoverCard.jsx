@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useMyListStore } from "../../state/myListStore";
 
 export default function HoverCard({
   children,
@@ -18,9 +19,10 @@ export default function HoverCard({
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState({ left: 0, top: 0 });
   const [place, setPlace] = useState("above"); // "above" | "below"
+  const { addItem, items } = useMyListStore();
 
   // spesifikasi panel
-  const PANEL = { w: 350, h: 460 };
+  const PANEL = { w: 350, h: 480 };
   const MARGIN = 12;
 
   // fallback badges
@@ -178,16 +180,36 @@ export default function HoverCard({
 
           {/* Tombol */}
           <div className="flex items-center gap-3">
-            <button className="w-[45px] h-[45px] rounded-full bg-white text-black grid place-items-center cursor-pointer transition">
+            <button className="w-[40px] h-[40px] rounded-full bg-white text-black grid place-items-center cursor-pointer transition">
               <i className="fa-solid fa-play" width="22" height="22"></i>
             </button>
-            <button className="w-[45px] h-[45px] rounded-full bg-white/10 grid place-items-center ring-1 ring-white/20
+            <button className="w-[40px] h-[40px] rounded-full bg-white/10 grid place-items-center ring-1 ring-white/20
              cursor-pointer transition hover:bg-white/20 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/40 pointer-events-auto">
               <i className="fa-solid fa-caret-down" width="22" height="22"></i>
             </button>
             <button type="button" aria-label="add to list"
-             className="w-[45px] h-[45px] rounded-full bg-white/10 grid place-items-center ring-1 ring-white/20 ml-auto
-             cursor-pointer transition hover:bg-white/20 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/40 pointer-events-auto">
+             className="w-[40px] h-[40px] rounded-full bg-white/10 grid place-items-center ring-1 ring-white/20 ml-auto
+             cursor-pointer transition hover:bg-white/20 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/40 pointer-events-auto"
+             onClick={(e) => {
+               e.stopPropagation();
+               // Check if item already exists in the list
+               const exists = items.some(item => item.id === title);
+               if (!exists) {
+                 addItem({
+                   id: title, // Using title as ID to prevent duplicates of the same title
+                   nama_tayangan: title,
+                   foto_sampul: poster,
+                   genre: displayGenre,
+                   tahun: "", // Will be extracted from release_date if available
+                   kategori: "", // Could be set based on context
+                   rating: "", // Could be passed as prop if available
+                   nominasi: "mylist" // Custom value for items in MyList
+                 });
+               } else {
+                 // Optional: Show a notification that item already exists
+                 console.log("Item already in list");
+               }
+             }}>
               <i className="fa-solid fa-plus" width="22" height="22"></i>
             </button>
           </div>

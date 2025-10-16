@@ -34,6 +34,9 @@ export const getGuestRatedMovies = async (guestSessionId, page = 1, signal) =>
 // 3) Popular
 export const getPopularMovies = async (page = 1, signal) =>
   (await api.get("/movie/popular", { params: { page }, signal: signal ? signal : undefined })).data;
+// 4) Upcoming
+export const getUpcomingMovies = async (page = 1, signal) =>
+  (await api.get("/movie/upcoming", { params: { page }, signal: signal ? signal : undefined })).data;
 // 4) Trending
 export const getTrendingMovies = async (timeWindow = "day", page = 1, signal) =>
   (await api.get(`/trending/movie/${timeWindow}`, { params: { page }, signal: signal ? signal : undefined })).data;
@@ -48,6 +51,9 @@ export const pickCertification = (releaseDates, country = "US") => {
 // Movie detail (opsional)
 export const getMovieDetail = async (id, signal) =>
   (await api.get(`/movie/${id}`, signal ? { signal } : undefined)).data;
+// 6) Recommendations
+export const getMovieRecommendations = async (movieId, page = 1, signal) =>
+  (await api.get(`/movie/${movieId}/recommendations`, { params: { page }, signal: signal ? signal : undefined })).data;
 
 /* ===================== TV ===================== */
 // 1) Latest (single object)
@@ -67,6 +73,9 @@ export const getTVAiringToday = async (page = 1, signal) =>
 // TV detail (opsional)
 export const getTVDetail = async (id, signal) =>
   (await api.get(`/tv/${id}`, signal ? { signal } : undefined)).data;
+// 6) Recommendations
+export const getTVRecommendations = async (tvId, page = 1, signal) =>
+  (await api.get(`/tv/${tvId}/recommendations`, { params: { page }, signal: signal ? signal : undefined })).data;
 
 /* ===================== Genre & Search ===================== */
 export const getMovieGenres = async (signal) =>
