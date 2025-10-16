@@ -1,50 +1,52 @@
+// src/pages/Series.jsx
+import { useEffect } from "react";
 import Navbar from "../components/Fragments/Navbar";
 import SeriesHero from "../components/Fragments/SeriesHero";
 import CarouselRow from "../components/Fragments/CarouselRow";
 import Footer from "../components/Fragments/Footer";
-import { useShows } from "../state/shows-context";
+import { useShowStore } from "../state/showStore";
+import { useOverridesStore } from "../state/overridesStore"; // opsional
 
+const SERIES_GENRES = [
+  "Aksi","Anak-anak","Anime","Britania","Drama","Fantasi & Fiksi Ilmiah",
+  "Kejahatan","KDrama","Komedi","Petualangan","Perang","Romantis",
+  "Sains & Alam","Thriller",
+];
 
-function Series() {
-  const { items } = useShows();
-  const seriesItems = items.filter((s) => s.kategori === "series");
+export default function Series() {
+  const {
+    loading, error, preloadGenres, fetchTVRows,
+    tvLatest, tvRated, tvPopular, tvTrending, tvAiringToday,
+  } = useShowStore();
 
-  const byNominasi = (nominasi) =>
-    seriesItems
-      .filter((s) => s.nominasi === nominasi && s.kategori === "series")
-      .map((s, i) => ({
-        id: s.id ?? `series-${nominasi}-${i}`,
-        src: s.foto_sampul,
-        title: s.nama_tayangan,
-        rating: s.rating,
-        genre: s.genre,
-        tahun: s.tahun,
-        kategori: s.kategori,
-      }));
+  const { getPatched } = useOverridesStore(); // opsional
+
+  useEffect(() => {
+    (async () => {
+      await preloadGenres();
+      await fetchTVRows();
+    })();
+  }, [preloadGenres, fetchTVRows]);
+
+  const patchAll = (arr) => arr.map(getPatched); // opsional
 
   return (
     <div className="min-h-screen w-full bg-[#181A1C] text-white">
       <Navbar />
+      <SeriesHero genres={SERIES_GENRES} />
 
-    <SeriesHero
-           genres={[
-             "Aksi","Anak-anak","Anime","Britania","Drama","Fantasi & Fiksi Ilmiah",
-             "Kejahatan","KDrama","Komedi","Petualangan","Perang","Romantis",
-             "Sains & Alam","Thriller"
-           ]}
-     />
+      {error && <div className="px-6 md:px-12 lg:px-24 py-4 text-red-400">{error}</div>}
 
       <main className="flex flex-col gap-8">
-        <CarouselRow title="Melanjutkan Tontonan Series" items={byNominasi("history")} variant="history" />
-        <CarouselRow title="Series Persembahan Chill" items={byNominasi("original")} variant="poster"/>
-        <CarouselRow title="Top Rating Series Hari ini" items={byNominasi("top")} />
-        <CarouselRow title="Series Trending" items={byNominasi("trending")} />
-        <CarouselRow title="Rilis Baru" items={byNominasi("new")} />
+        <CarouselRow title="Latest TV" items={patchAll(tvLatest)} />
+        {!!tvRated.length && <CarouselRow title="TV Rated (Guest Session)" items={patchAll(tvRated)} />}
+        <CarouselRow title="Popular TV" items={patchAll(tvPopular)} />
+        <CarouselRow title="Trending TV (Today)" items={patchAll(tvTrending)} />
+        <CarouselRow title="TV Airing Today" items={patchAll(tvAiringToday)} />
       </main>
 
+      {loading && <div className="px-6 md:px-12 lg:px-24 py-4 text-gray-400">Loading…</div>}
       <Footer />
     </div>
   );
 }
-
-export default Series;

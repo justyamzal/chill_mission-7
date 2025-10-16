@@ -137,18 +137,30 @@ export default function CarouselRow({
               <div className="relative reco-slide rounded-lg overflow-hidden
                 transition-transform duration-200 ease-[cubic-bezier(.2,.8,.2,1)]
                 group-hover:scale-[1.03]">
-                <img src={poster} alt={name} className="object-cover select-none" draggable="false" loading="lazy" />
+                {poster ? (
+                  <img src={poster} alt={name} className="object-cover select-none" draggable="false" loading="lazy" />
+                ) : (
+                  <div className="bg-gray-800 w-full h-full flex items-center justify-center">
+                    <span className="text-gray-500">No Image</span>
+                  </div>
+                )}
               </div>
             </HoverCard>
           ) : (
                 <div className="relative w-full h-[162px] overflow-hidden rounded-lg">
-                  <img
-                    src={poster}
-                    alt={name}
-                    className="absolute inset-0 w-full h-full object-cover select-none"
-                    draggable="false"
-                    loading="lazy"
-                  />
+                  {poster ? (
+                    <img
+                      src={poster}
+                      alt={name}
+                      className="absolute inset-0 w-full h-full object-cover select-none"
+                      draggable="false"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                      <span className="text-gray-500">No Image</span>
+                    </div>
+                  )}
                   {(name || it.rating) && (
                     <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 to-transparent">
                       <div className="flex items-center justify-between">

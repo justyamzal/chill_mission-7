@@ -154,12 +154,18 @@ export default function HoverCard({
       >
         {/* Gambar 408×264 */}
         <div className="w-full h-[264px] overflow-hidden bg-black">
-          <img
-            src={poster}
-            alt={displayTitle}
-            className="w-full h-full object-cover"
-            draggable="false"
-          />
+          {poster ? (
+            <img
+              src={poster}
+              alt={displayTitle}
+              className="w-full h-full object-cover"
+              draggable="false"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-900">
+              <span className="text-gray-600">No Image</span>
+            </div>
+          )}
         </div>
 
         {/* Body */}
