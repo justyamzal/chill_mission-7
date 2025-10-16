@@ -4,9 +4,20 @@ import CarouselRow from "../components/Fragments/CarouselRow";
 import Footer from "../components/Fragments/Footer";
 import { useShows } from "../state/shows-context";
 
-
 function Series() {
-  const { items } = useShows();
+  const { items, loading } = useShows();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full bg-[#181A1C] text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+          <p>Memuat data series...</p>
+        </div>
+      </div>
+    );
+  }
+
   const seriesItems = items.filter((s) => s.kategori === "series");
 
   const byNominasi = (nominasi) =>
@@ -22,7 +33,7 @@ function Series() {
         kategori: s.kategori,
       }));
 
-  return (
+ return (
     <div className="min-h-screen w-full bg-[#181A1C] text-white">
       <Navbar />
 

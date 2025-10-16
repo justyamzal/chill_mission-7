@@ -9,7 +9,7 @@ import ManageForm from "@/components/Fragments/Manage/ManageForm";
 import ManageList from "@/components/Fragments/Manage/ManageList";
 
 export default function Manage() {
-  const { items, addShow, updateShow, removeShow } = useShows();
+  const { items, loading, addShow, updateShow, removeShow } = useShows();
 
   // form
   const [editingId, setEditingId] = useState(null);
@@ -26,31 +26,34 @@ export default function Manage() {
   const [perPage, setPerPage] = useState(9);
 
   // submit
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
-    if (!form.nama_tayangan || !form.foto_sampul) return;
+    if (!form.nama_tayangan) return; // Menghapus validasi foto_sampul karena akan diisi otomatis dari TMDB jika kosong
 
     const payload = {
       ...form,
-      id: form.id?.trim() ? form.id : (crypto?.randomUUID?.() ?? String(Date.now())),
       tahun: form.tahun ? String(parseInt(form.tahun, 10)) : "",
       rating: form.rating === "" ? "" : String(Math.max(0, Math.min(5, parseFloat(form.rating)))),
     };
 
-    if (editingId) {
-      const { id: _ID_UNUSED, ...patch } = payload; // hindari no-unused-vars
-      updateShow(editingId, patch);
-      setEditingId(null);
-    } else {
-      addShow(payload);
-    }
+    try {
+      if (editingId) {
+        await updateShow(editingId, payload);
+        setEditingId(null);
+      } else {
+        await addShow(payload);
+      }
 
-    setForm({
-      id: "", nama_tayangan: "", tahun: "",
-      nominasi: "history", genre: "Aksi", kategori: "film",
-      foto_sampul: "", rating: ""
-    });
-    setImgMode("url");
+      setForm({
+        id: "", nama_tayangan: "", tahun: "",
+        nominasi: "history", genre: "Aksi", kategori: "film",
+        foto_sampul: "", rating: ""
+      });
+      setImgMode("url");
+    } catch (error) {
+      console.error("Failed to save show:", error);
+      alert("Gagal menyimpan data tayangan: " + error.message);
+    }
   }
 
   // derive (filter + sort + page)
@@ -58,6 +61,14 @@ export default function Manage() {
     total, totalPages, safePage,
     start, end, pageItems, isMobile, mobileCount, mobileItems
   } = useMemo(() => {
+    if (loading) {
+      return {
+        total: 0, totalPages: 0, safePage: 1,
+        start: 0, end: 0, pageItems: [],
+        isMobile: false, mobileCount: 0, mobileItems: []
+      };
+    }
+
     const q = query.trim().toLowerCase();
 
     const filtered = items.filter((it) => {
@@ -91,7 +102,7 @@ export default function Manage() {
         start: startIdx + 1, end: endIdx, pageItems,
         isMobile, mobileCount, mobileItems
       };
-    }, [items, query, page, perPage]);
+    }, [items, query, page, perPage, loading]);
 
     // list handlers
     const goto = (p) => setPage(Math.min(Math.max(1, p), totalPages));
@@ -110,21 +121,44 @@ export default function Manage() {
       setImgMode(it.foto_sampul?.startsWith("data:") ? "upload" : "url");
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
-  const onDeleteItem = (it) => {
+  const onDeleteItem = async (it) => {
     if (confirm(`Hapus "${it.nama_tayangan}"?`)) {
-      removeShow(it.id);
-      if (editingId === it.id) {
-        setEditingId(null);
-        setForm({
-          id: "", nama_tayangan: "", tahun: "",
-          nominasi: "history", genre: "Aksi", kategori: "film",
-          foto_sampul: "", rating: ""
-        });
-        setImgMode("url");
+      try {
+        await removeShow(it.id);
+        if (editingId === it.id) {
+          setEditingId(null);
+          setForm({
+            id: "", nama_tayangan: "", tahun: "",
+            nominasi: "history", genre: "Aksi", kategori: "film",
+            foto_sampul: "", rating: ""
+          });
+          setImgMode("url");
+        }
+      } catch (error) {
+        console.error("Failed to delete show:", error);
+        alert("Gagal menghapus data tayangan: " + error.message);
       }
     }
   };
-  const onChangeNom = (it, nom) => updateShow(it.id, { nominasi: nom });
+  const onChangeNom = async (it, nom) => {
+    try {
+      await updateShow(it.id, { nominasi: nom });
+    } catch (error) {
+      console.error("Failed to update nomination:", error);
+      alert("Gagal memperbarui nominasi: " + error.message);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full bg-[#181A1C] text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+          <p>Memuat data tayangan...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-[#181A1C] text-white">
@@ -137,7 +171,7 @@ export default function Manage() {
               Mode: {editingId ? "Edit data" : "Tambah data"}
             </span>
           </p>
-          <p className="text-white/70 mt-1">Tambah/ubah/hapus data tayangan. Data disimpan di localStorage.</p>
+          <p className="text-white/70 mt-1">Tambah/ubah/hapus data tayangan. Data disimpan di mockAPI.</p>
 
           <ManageToolbar
             query={query}

@@ -1,49 +1,35 @@
-// src/utils/tmdbService.js
-import api from "./api";
+// src/utils/tmdb.js
+const TMDB_BEARER = import.meta.env.VITE_TMDB_BEARER;
+const TMDB_V3 = import.meta.env.VITE_TMDB_API_KEY;
 
-// helper untuk gambar
-export const imgUrl = (path, size = "w500") =>
-  path ? `https://image.tmdb.org/t/p/${size}${path}` : "";
+async function tmdbSearch(title, type) {
+  const url = new URL(`https://api.themoviedb.org/3/search/${type}`);
+  url.searchParams.set('query', title);
+  url.searchParams.set('include_adult', 'false');
+  url.searchParams.set('language', 'en-US');
 
-// --- Movies ---
-export const getPopularMovies = async (page = 1, signal) => {
-  const { data } = await api.get("/movie/popular", { params: { page }, signal });
-  return data; // {page, results, total_pages, ...}
-};
+  const opts = TMDB_BEARER
+    ? { headers: { Authorization: `Bearer ${TMDB_BEARER}` } }
+    : undefined;
 
-export const getTopRatedMovies = async (page = 1, signal) => {
-  const { data } = await api.get("/movie/top_rated", { params: { page }, signal });
-  return data;
-};
+  if (!TMDB_BEARER && TMDB_V3) url.searchParams.set('api_key', TMDB_V3);
 
-export const getMovieDetail = async (id, signal) => {
-  const { data } = await api.get(`/movie/${id}`, { signal });
-  return data;
-};
+  const res = await fetch(url, opts);
+  const data = await res.json();
+  return data.results?.[0] ?? null;
+}
 
-// --- TV ---
-export const getPopularTV = async (page = 1, signal) => {
-  const { data } = await api.get("/tv/popular", { params: { page }, signal });
-  return data;
-};
+export async function fetchPosterUrl(title, type) {
+  // type: 'film' -> 'movie', 'series' -> 'tv'
+  const t = type === 'series' ? 'tv' : 'movie';
 
-export const getTopRatedTV = async (page = 1, signal) => {
-  const { data } = await api.get("/tv/top_rated", { params: { page }, signal });
-  return data;
-};
+  // cache sederhana
+  const key = `poster:${t}:${title}`;
+  const cached = localStorage.getItem(key);
+  if (cached) return cached;
 
-export const getTVDetail = async (id, signal) => {
-  const { data } = await api.get(`/tv/${id}`, { signal });
-  return data;
-};
-
-// --- Genre & Search ---
-export const getMovieGenres = async (signal) => {
-  const { data } = await api.get("/genre/movie/list", { signal });
-  return data.genres; // [{id, name}]
-};
-
-export const searchMulti = async (query, page = 1, signal) => {
-  const { data } = await api.get("/search/multi", { params: { query, page }, signal });
-  return data;
-};
+  const hit = await tmdbSearch(title, t);
+  const url = hit?.poster_path ? `https://image.tmdb.org/t/p/w500${hit.poster_path}` : '';
+  if (url) localStorage.setItem(key, url);
+  return url;
+}

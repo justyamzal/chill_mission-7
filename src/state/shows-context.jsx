@@ -1,58 +1,75 @@
 /* eslint-disable react-refresh/only-export-components */
 
-import { createContext, useContext, useEffect, useMemo, useReducer } from "react";
-
-const LS_KEY = "chill.shows.v1";
-
-function readLS() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY)) ?? { items: [] }; }
-  catch { return { items: [] }; }
-}
-function writeLS(v) {
-      try {
-    localStorage.setItem(LS_KEY, JSON.stringify(v));
-  } catch (e) {
-    // gagal menulis (quota/privacy mode). Abaikan dengan log supaya tidak kosong.
-    // eslint-disable-next-line no-console
-    console.warn("localStorage write failed:", e);
-  }
-}
-
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { listShows, createShow, updateShow, deleteShow } from "../utils/showApi";
 
 const Ctx = createContext(null);
 
-function reducer(state, action) {
-  switch (action.type) {
-    case "ADD": {
-      const now = Date.now();
-      const id = action.payload.id?.trim() || (crypto?.randomUUID?.() ?? String(now));
-      const item = { ...action.payload, id, createdAt: now, updatedAt: now };
-      return { ...state, items: [item, ...state.items] };
-    }
-    case "UPDATE": {
-      const { id, patch } = action.payload;
-      return {
-        ...state,
-        items: state.items.map(it => it.id === id ? { ...it, ...patch, updatedAt: Date.now() } : it),
-      };
-    }
-    case "REMOVE":
-      return { ...state, items: state.items.filter(it => it.id !== action.payload) };
-    default:
-      return state;
-  }
-}
-
 export function ShowsProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, undefined, readLS);
-  useEffect(() => { writeLS(state); }, [state]);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Ambil data dari API saat komponen dimuat
+  useEffect(() => {
+    const fetchShows = async () => {
+      try {
+        const data = await listShows();
+        setItems(data);
+      } catch (error) {
+        console.error("Failed to fetch shows:", error);
+        setItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchShows();
+  }, []);
+
+  // Fungsi untuk menambahkan show baru
+  const addShow = async (data) => {
+    try {
+      const sanitizedData = sanitize(data);
+      const newShow = await createShow(sanitizedData);
+      setItems(prev => [newShow, ...prev]);
+      return newShow;
+    } catch (error) {
+      console.error("Failed to add show:", error);
+      throw error;
+    }
+  };
+
+  // Fungsi untuk memperbarui show
+  const updateShowAPI = async (id, patch) => {
+    try {
+      const sanitizedPatch = sanitize(patch, true);
+      const updatedShow = await updateShow(id, sanitizedPatch);
+      setItems(prev => prev.map(item => item.id === id ? updatedShow : item));
+      return updatedShow;
+    } catch (error) {
+      console.error("Failed to update show:", error);
+      throw error;
+    }
+  };
+
+  // Fungsi untuk menghapus show
+  const removeShow = async (id) => {
+    try {
+      await deleteShow(id);
+      setItems(prev => prev.filter(item => item.id !== id));
+    } catch (error) {
+      console.error("Failed to remove show:", error);
+      throw error;
+    }
+  };
 
   const api = useMemo(() => ({
-    items: state.items,
-    addShow: (data) => dispatch({ type: "ADD", payload: sanitize(data) }),
-    updateShow: (id, patch) => dispatch({ type: "UPDATE", payload: { id, patch: sanitize(patch, true) } }),
-    removeShow: (id) => dispatch({ type: "REMOVE", payload: id }),
-  }), [state.items]);
+    items,
+    loading,
+    addShow,
+    updateShow: updateShowAPI,
+    removeShow,
+  }), [items, loading]);
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;
 }
