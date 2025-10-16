@@ -12,19 +12,9 @@ const FILM_GENRES = [
 ];
 
 export default function Film() {
-  const { items, loading } = useShows();
+  const { items } = useShows();
   const [selectedGenre, setSelectedGenre] = useState("");
 
- if (loading) {
-    return (
-      <div className="min-h-screen w-full bg-[#181A1C] text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-          <p>Memuat data film...</p>
-        </div>
-      </div>
-    );
-  }
   
   // hanya kategori 'film' + filter genre jika dipilih
   const films = items.filter(
