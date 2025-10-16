@@ -2,13 +2,50 @@
 import { fetchPosterUrl } from './tmdbService';
 
 const BASE = import.meta.env.VITE_MOCKAPI_BASE;
+// Asumsikan BASE adalah root URL dan kita perlu tambahkan /shows
 export const SHOWS = `${BASE}/shows`;
 
 export async function listShows(params={}) {
   const qs = new URLSearchParams(params).toString();
+  console.log("Fetching from URL:", qs ? `${SHOWS}?${qs}` : SHOWS);
   const r = await fetch(qs ? `${SHOWS}?${qs}` : SHOWS);
-  if (!r.ok) throw new Error('Fetch shows failed');
-  return r.json();
+  console.log("Response status:", r.status);
+  if (!r.ok) {
+    console.error("Fetch shows failed with status:", r.status);
+    throw new Error('Fetch shows failed');
+  }
+  const response = await r.json();
+  console.log("Raw response from API:", response);
+  
+  // Coba berbagai kemungkinan struktur data
+  let data;
+  if (Array.isArray(response)) {
+    data = response;
+  } else if (response && typeof response === 'object') {
+    // Coba cari array dalam response
+    if (response.data && Array.isArray(response.data)) {
+      data = response.data;
+    } else if (response.results && Array.isArray(response.results)) {
+      data = response.results;
+    } else if (response.shows && Array.isArray(response.shows)) {
+      data = response.shows;
+    } else if (response.Items && Array.isArray(response.Items)) {
+      data = response.Items;
+    } else if (response.records && Array.isArray(response.records)) {
+      data = response.records;
+    } else if (response.rows && Array.isArray(response.rows)) {
+      data = response.rows;
+    } else {
+      // Jika hanya satu objek, buat menjadi array
+      data = [response];
+    }
+  } else {
+    console.warn("API returned unexpected data type, creating empty array");
+    data = [];
+  }
+  
+  console.log("Processed data from API:", data);
+  return data;
 }
 
 export async function getShow(id) {

@@ -13,6 +13,7 @@ const FILM_GENRES = [
 
 export default function Film() {
   const { items } = useShows();
+  console.log("Film page items:", items);
   const [selectedGenre, setSelectedGenre] = useState("");
 
   
@@ -20,36 +21,59 @@ export default function Film() {
   const films = items.filter(
     (s) => s.kategori === "film" && (!selectedGenre || s.genre === selectedGenre)
   );
+  console.log("Filtered film items:", films);
+  console.log("Total film items:", films.length);
 
-  const mapHistory = (s, i) => ({
-    id: s.id ?? `film-history-${i}`,
-    src: s.foto_sampul,
-    title: s.nama_tayangan,
-    rating: s.rating,
-    genre: s.genre,
-    tahun: s.tahun,
-    kategori: s.kategori,
-  });
-  const mapPoster = (s, i) => ({
-    id: s.id ?? `film-${i}`,
-    src: s.foto_sampul,
-    title: s.nama_tayangan,
-    rating: s.rating,
-    genre: s.genre,
-    tahun: s.tahun,
-    kategori: s.kategori,
-  });
+  const mapHistory = (s, i) => {
+    console.log(`Processing history item ${i}:`, s);
+    const mappedItem = {
+      id: s?.id ?? `film-history-${i}`,
+      src: s?.foto_sampul,
+      title: s?.nama_tayangan,
+      rating: s?.rating,
+      genre: s?.genre,
+      tahun: s?.tahun,
+      kategori: s?.kategori,
+    };
+    console.log(`Mapped history item ${i}:`, mappedItem);
+    return mappedItem;
+  };
+  const mapPoster = (s, i) => {
+    console.log(`Processing poster item ${i}:`, s);
+    const mappedItem = {
+      id: s?.id ?? `film-${i}`,
+      src: s?.foto_sampul,
+      title: s?.nama_tayangan,
+      rating: s?.rating,
+      genre: s?.genre,
+      tahun: s?.tahun,
+      kategori: s?.kategori,
+    };
+    console.log(`Mapped poster item ${i}:`, mappedItem);
+    return mappedItem;
+  };
 
-  const pick = (nominasi, mapper = mapPoster) =>
-    films.filter((s) => s.nominasi === nominasi).map(mapper);
+  const pick = (nominasi, mapper = mapPoster) => {
+    const filtered = films.filter((s) => s.nominasi === nominasi);
+    console.log(`Film items for nominasi ${nominasi}:`, filtered);
+    console.log(`Count for nominasi ${nominasi}:`, filtered.length);
+    const mappedItems = filtered.map(mapper);
+    console.log(`Mapped film items for nominasi ${nominasi}:`, mappedItems);
+    return mappedItems;
+  };
 
   // fungsi tambahan untuk filter nominasi berdasarkan kategori
-  const byNominasi = (nominasi, mapper = mapPoster) =>
-  items
-    .filter(
-      (s) => s.nominasi === nominasi && s.kategori === "film" // filter khusus film
-    )
-    .map(mapper);
+  const byNominasi = (nominasi, mapper = mapPoster) => {
+    const filtered = items
+      .filter(
+        (s) => s.nominasi === nominasi && s.kategori === "film" // filter khusus film
+      );
+    console.log(`All items for nominasi ${nominasi} (film only):`, filtered);
+    console.log(`Count for nominasi ${nominasi} (film only):`, filtered.length);
+    const mappedItems = filtered.map(mapper);
+    console.log(`Mapped all items for nominasi ${nominasi} (film only):`, mappedItems);
+    return mappedItems;
+  };
 
 
   return (
@@ -60,8 +84,8 @@ export default function Film() {
 
       <main className="flex flex-col gap-8">
         {/* Melanjutkan */}
-        <CarouselRow title = { 
-          selectedGenre ? `Melanjutkan Tonton Film ${selectedGenre}` : "Melanjutkan Tonton Film"} 
+        <CarouselRow title = {
+          selectedGenre ? `Melanjutkan Tonton Film ${selectedGenre}` : "Melanjutkan Tonton Film"}
           items={pick("history", mapHistory)} variant="history"/>
 
         {/* Film Persembahan Chill — diambil dari nominasi persembahan */}

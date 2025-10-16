@@ -13,12 +13,16 @@ export function ShowsProvider({ children }) {
   useEffect(() => {
     const fetchShows = async () => {
       try {
+        console.log("Fetching shows from API...");
         const data = await listShows();
+        console.log("Shows data received:", data);
+        console.log("Type of data received:", typeof data, Array.isArray(data) ? "array" : "not array");
         setItems(data);
       } catch (error) {
         console.error("Failed to fetch shows:", error);
         setItems([]);
       } finally {
+        console.log("Setting loading to false");
         setLoading(false);
       }
     };
