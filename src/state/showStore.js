@@ -139,6 +139,11 @@ export const useShowStore = create((set, get) => ({
         movieReleaseCerts: addGenreName(certRows),
         movieUpcoming: addGenreName(upcoming),
       });
+
+      // Log if TMDB key is missing in production
+      if (!import.meta.env.VITE_TMDB_KEY) {
+        console.warn("VITE_TMDB_KEY is not set. API calls will fail.");
+      }
     } catch (e) {
       set({ error: e?.message || "Gagal memuat data movie" });
     } finally {
@@ -210,6 +215,11 @@ export const useShowStore = create((set, get) => ({
         tvTrending: addGenreName(trending),
         tvAiringToday: addGenreName(airingToday),
       });
+
+      // Log if TMDB key is missing in production
+      if (!import.meta.env.VITE_TMDB_KEY) {
+        console.warn("VITE_TMDB_KEY is not set. API calls will fail.");
+      }
     } catch (e) {
       set({ error: e?.message || "Gagal memuat data TV" });
     } finally {

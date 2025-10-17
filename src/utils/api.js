@@ -4,10 +4,15 @@ import axios from "axios";
 
 const BASE_URL = "https://api.themoviedb.org/3";
 
+// Check if API key is available
+if (!import.meta.env.VITE_TMDB_KEY) {
+  console.error("TMDB API key is missing! Please set VITE_TMDB_KEY environment variable.");
+}
+
 const api = axios.create({
   baseURL: BASE_URL,
   params: {
-    api_key: import.meta.env.VITE_TMDB_KEY,
+    api_key: import.meta.env.VITE_TMDB_KEY || "", // Provide empty string as fallback to prevent undefined
     language: "id-ID", // ganti ke "en-US" kalau mau
   },
   timeout: 15000,
