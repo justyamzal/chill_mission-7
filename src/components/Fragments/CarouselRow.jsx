@@ -116,6 +116,7 @@ export default function CarouselRow({
       <Splide options={opts}>
         {items.map((it, i) => {
           const poster = it.src ?? it.poster ?? it.image;
+          const safePoster = poster && String(poster).trim().length ? poster : "/fallback-poster.webp"
           const name = it.title ?? it.name ?? `item ${i + 1}`;
           const age = getAge(it);
           const eps = getEpisodes(it);
@@ -137,7 +138,9 @@ export default function CarouselRow({
               <div className="relative reco-slide rounded-lg overflow-hidden
                 transition-transform duration-200 ease-[cubic-bezier(.2,.8,.2,1)]
                 group-hover:scale-[1.03]">
-                <img src={poster} alt={name} className="object-cover select-none" draggable="false" loading="lazy" />
+                 {safePoster && (
+                  <img src={safePoster} alt={name} className="object-cover select-none" draggable="false" loading="lazy" />
+                )}
               </div>
             </HoverCard>
           ) : (

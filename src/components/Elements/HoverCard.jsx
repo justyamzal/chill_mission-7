@@ -25,8 +25,7 @@ export default function HoverCard({
 
   // fallback badges
   const displayTitle = title ?? "";
-  const displayGenre =
-    Array.isArray(genre) ? (genre[0] ?? "TBD")
+  const displayGenre = Array.isArray(genre) ? (genre[0] ?? "TBD")
     : (typeof genre === "string" && genre.trim() ? genre.trim() : "TBD");
   const displayAge = (age === 0 || age) ? String(age) : "TBD";
   const displayEpisodes =
@@ -154,8 +153,8 @@ export default function HoverCard({
       >
         {/* Gambar 408×264 */}
         <div className="w-full h-[264px] overflow-hidden bg-black">
-          <img
-            src={poster}
+           <img
+            src={poster && String(poster).trim().length ? poster : "/fallback-poster.webp"}
             alt={displayTitle}
             className="w-full h-full object-cover"
             draggable="false"
@@ -190,9 +189,10 @@ export default function HoverCard({
           <div className="mt-4 flex items-center gap-3 text-sm">
             <span className="px-2 py-1 rounded bg-white/10">{displayAge}</span>
             <span className="px-2 py-1 rounded bg-white/10">{displayEpisodes}</span>
+            <span className="px-2 py-1 rounded bg-white/10">{displayGenre}</span>
           </div>
           <div className="mt-3 flex items-center gap-3 text-sm">
-            <span className="px-2 py-1 rounded bg-white/10">{displayGenre}</span>
+            
           </div>
         </div>
       </div>

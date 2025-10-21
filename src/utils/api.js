@@ -8,7 +8,7 @@ const api = axios.create({
   baseURL: BASE_URL,
   params: {
     api_key: import.meta.env.VITE_TMDB_KEY,
-    language: "id-ID", // ganti ke "en-US" kalau mau
+    language: "en-US", // ganti ke "en-US" kalau mau
   },
   timeout: 15000,
 });
@@ -17,9 +17,16 @@ const api = axios.create({
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    console.error("[TMDB API ERROR]", err?.response?.status, err?.message);
-    return Promise.reject(err);
-  }
-);
+    // Ignore canceled requests (React StrictMode double-invokes effects in DEV)
+    const canceled = err?.code === "ERR_CANCELED" || err?.message === "canceled" || err?.name === "CanceledError";
+    if (!canceled) {
+      console.error("[TMDB API ERROR]", err?.response?.status, err?.message);
+    } else {
+      // console.debug("[TMDB API] request canceled (dev StrictMode)");
+    }
+     return Promise.reject(err);
+   }
+ );
 
 export default api;
+
