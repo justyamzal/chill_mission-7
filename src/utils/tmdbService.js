@@ -7,8 +7,6 @@ import api from "./api";
 export const tmdbImg = (path, size = "w500") =>
   path ? `https://image.tmdb.org/t/p/${size}${path}` : "/fallback-poster.webp";
 
-
-
 //----- Movies -----//
 
 // ====== AGE / CERTIFICATION HELPERS ======
@@ -84,8 +82,6 @@ export async function getMoviesAgeMap(ids = [], signal, prefCountries = ["ID", "
 }
 
 
-
-
 //  A) GENRE HELPERS (cache)
 let MOVIE_GENRE_MAP = null; // Map<number, string>
 
@@ -111,7 +107,7 @@ export const getLatestMovies = async (limit=10, signal) => {
   const results = Array.isArray(data?.results) ? data.results.slice(0, limit) : [];
   return { ...data, results };
 }
-
+//---- POPULAR MOVIES 
 export const getPopularMovies = async (page = 1, signal) => {
   const { data } = await api.get("/movie/popular", { params: { page }, signal });
   return data; // {page, results, total_pages, ...}

@@ -5,7 +5,7 @@ import FilmHero from "../components/Fragments/FilmHero.jsx";
 import CarouselRow from "../components/Fragments/CarouselRow.jsx";
 import Footer from "../components/Fragments/Footer.jsx";
 import { useShows } from "../state/shows-context.jsx";
-import { getLatestMovies, tmdbImg, getMovieGenresMap, genreNameFromIds, getMoviesAgeMap,} from "@/utils/tmdbService.js";
+import { getLatestMovies, getPopularMovies, getTopRatedMovies , tmdbImg, getMovieGenresMap, genreNameFromIds, getMoviesAgeMap,} from "@/utils/tmdbService.js";
 
 const FILM_GENRES = [
   "Semua","Aksi","Petualangan","Animasi","Komedi","Drama","Fantasi",
@@ -19,38 +19,85 @@ export default function Film() {
   const [latest, setLatest] = useState([]);
   const [errLatest, setErrLatest] = useState("");
 
+  const [popular,setPopular] = useState([]);
+  const [errPopular,setErrPopular] = useState("");
+
+  const [topRated,setTopRated] = useState([]);
+  const [errTopRated,setErrTopRated] = useState("");
+
+
+
   useEffect(() => {
     const abort = new AbortController();
     (async () => {
       try {
-        // 1) ambil list film & peta genre bersamaan
-        const [{ results }, genreMap] = await Promise.all([
-          getLatestMovies(10, abort.signal),
+        // 1) Ambil Now Playing (latest), Popular, dan peta genre bersamaan
+      const [
+          { results: latestRes },
+          { results: popularResRaw },
+          { results: topRatedResRaw },
+          genreMap
+        ] = await Promise.all([
+          getLatestMovies(15, abort.signal),     // Now Playing (ambil 15 lalu slice di mapping)
+          getPopularMovies(1, abort.signal),     // Popular page 1
+          getTopRatedMovies(1, abort.signal),    // Top Rated page 1
           getMovieGenresMap(abort.signal),
         ]);
+        const popularRes = Array.isArray(popularResRaw) ? popularResRaw.slice(0, 10) : [];
+        const topRaw     = Array.isArray(topRatedResRaw) ? topRatedResRaw.slice(0, 10) : [];
         
-        // 2) ambil age
-        const ids = results.map(m => m.id).filter(Boolean);
-        const ageMap = await getMoviesAgeMap(ids,abort.signal);
+        // 2) Ambil age untuk gabungan id (latest + popular + top) agar hemat request
+        const ids = [...latestRes, ...popularRes, ...topRaw].map(m => m.id).filter(Boolean);
+        const ageMap = await getMoviesAgeMap(ids, abort.signal);
 
         // 3) mapping → isi 'genre' dengan nama Indonesia (bukan id)
-        const mapped = results.map((m, i) => ({
+        const latestMapped = latestRes.map((m, i) => ({
           id: m.id ?? `latest-${i}`,
           src: tmdbImg(m.poster_path, "w500"),
           title: m.title || m.original_title || "Tanpa Judul",
-          rating: m.vote_average ? Math.round((m.vote_average / 2) * 10) / 10 : "", // 0–5
+          rating: m.vote_average ? Math.round((m.vote_average / 2) * 15) / 15 : "", // 0–5
           genre: genreNameFromIds(m.genre_ids, genreMap) || "Lainnya",
           tahun: m.release_date?.slice(0, 4) ?? "",
           kategori: "film",
           age: ageMap.get(m.id) || "TBD",
         }));
         
-        setLatest(mapped);
+        setLatest(latestMapped);
+        // 4) Mapping Popular (limit 10)
+        const popularMapped = popularRes.map((m, i) => ({
+          id: m.id ?? `popular-${i}`,
+          src: tmdbImg(m.poster_path, "w500"),
+          title: m.title || m.original_title || "Tanpa Judul",
+          rating: m.vote_average ? Math.round((m.vote_average / 2) * 10) / 10 : "",
+          genre: genreNameFromIds(m.genre_ids, genreMap) || "Lainnya",
+          tahun: m.release_date?.slice(0, 4) ?? "",
+          kategori: "film",
+          age: ageMap.get(m.id) || "TBD",
+        }));
+        setPopular(popularMapped);
+        
+        // 5) Mapping Top Rated (limit 10)
+        const topMapped = topRaw.map((m, i) => ({
+          id: m.id ?? `top-${i}`,
+          src: tmdbImg(m.poster_path, "w500"),
+          title: m.title || m.original_title || "Tanpa Judul",
+          rating: m.vote_average ? Math.round((m.vote_average / 2) * 10) / 10 : "",
+          genre: genreNameFromIds(m.genre_ids, genreMap) || "Lainnya",
+          tahun: m.release_date?.slice(0, 4) ?? "",
+          kategori: "film",
+          age: ageMap.get(m.id) || "TBD",
+        }));
+        setTopRated(topMapped);
       } catch (e) {
         // Abaikan error cancel dari StrictMode; tampilkan selain itu
         const canceled =
           e?.code === "ERR_CANCELED" || e?.name === "CanceledError" || e?.message === "canceled";
-        if (!canceled) setErrLatest(e?.message || "Gagal memuat latest movies");
+        if (!canceled) {
+          // bedakan error latest vs popular (opsional)
+          setErrLatest(prev => prev || e?.message || "Gagal memuat now playing");
+          setErrPopular(prev => prev || e?.message || "Gagal memuat popular movies");
+          setErrTopRated(prev => prev || e?.message || "Gagal memuat top rated movies");
+        }
       }
     })();
     return () => abort.abort();
@@ -99,22 +146,25 @@ export default function Film() {
         />
 
         {/* Latest Movie: genre sudah nama Indonesia */}
-        <CarouselRow title="Latest Movie" items={latest} />
+        <CarouselRow title="Latest Movie Added" items={latest} />
         {errLatest && <div className="px-5 md:px-20 text-red-400">{errLatest}</div>}
+        
+        {/* Popular Movie */}
+         <CarouselRow title="Popular Movie" items={popular} />
+        {errPopular && <div className="px-5 md:px-20 text-red-400">{errPopular}</div>}
 
-        <CarouselRow title="Film Persembahan Chill" items={byNominasi("original")} />
-        <CarouselRow
-          title={selectedGenre ? `Top Rating Film ${selectedGenre} Hari ini` : "Top Rating Film Hari ini"}
-          items={pick("top")}
-        />
-        <CarouselRow
-          title={selectedGenre ? `Film Trending — ${selectedGenre}` : "Film Trending"}
-          items={pick("trending")}
-        />
+        {/* Top Rated Movie */}
+        {/* Top Rated Movie (TMDB /movie/top_rated, limit 10) */}
+        <CarouselRow title="Top Rated Movie" items={topRated}/>
+        {errTopRated && <div className="px-5 md:px-20 text-red-400">{errTopRated}</div>}
+
+        {/* Upcoming Movie */}
         <CarouselRow
           title={selectedGenre ? `Rilis Film Baru — ${selectedGenre}` : "Rilis Baru"}
-          items={pick("new")}
-        />
+          items={pick("new")}/>
+
+        <CarouselRow title="Film Persembahan Chill" items={byNominasi("original")} />
+
       </main>
 
       <Footer />
