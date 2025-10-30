@@ -112,11 +112,17 @@ export const getPopularMovies = async (page = 1, signal) => {
   const { data } = await api.get("/movie/popular", { params: { page }, signal });
   return data; // {page, results, total_pages, ...}
 };
-
+//---- TOP RATED MOVIES
 export const getTopRatedMovies = async (page = 1, signal) => {
   const { data } = await api.get("/movie/top_rated", { params: { page }, signal });
   return data;
 };
+
+//---- UPCOMING MOVIES
+export const getUpcomingMovies = async (page = 1, signal) => {
+  const { data } = await api.get("/movie/upcoming", { params: { page }, signal });
+  return data;
+}
 
 export const getMovieDetail = async (id, signal) => {
   const { data } = await api.get(`/movie/${id}`, { signal });
@@ -126,14 +132,85 @@ export const getMovieDetail = async (id, signal) => {
 
 
 // --- TV ---
+let TV_GENRE_MAP = null;
+export async function getTVGenresMap(signal) {  
+  if (TV_GENRE_MAP) return TV_GENRE_MAP;
+  // Pakai "id-ID" jika mau nama genre Indonesia; "en-US" untuk English
+  const { data } = await api.get("/genre/tv/list", { params: { language: "id-ID" }, signal });
+  TV_GENRE_MAP = new Map((data?.genres ?? []).map(g => [g.id, g.name]));
+  return TV_GENRE_MAP;
+}
+
+export function tvGenreNameFromIds(ids = [], map) {
+  if (!Array.isArray(ids) || !ids.length || !map) return "Lainnya";
+  return map.get(ids[0]) || "Lainnya";
+}
+
+// ===== TV: CONTENT RATING → AGE LABEL =====
+function mapTvRatingToAgeLabel(code = "") {
+  const C = code.trim().toUpperCase();
+  // US (TV Parental Guidelines)
+  if (C === "TV-Y") return "SU";
+  if (C === "TV-Y7") return "7+";
+  if (C === "TV-G") return "SU";
+  if (C === "TV-PG") return "10+";
+  if (C === "TV-14") return "14+";
+  if (C === "TV-MA") return "17+";
+
+  // ID (kadang muncul 13+, 17+)
+  const num = C.match(/\d{1,2}/)?.[0];
+  return num ? `${num}+` : (C || "TBD");
+}
+
+// 1 judul TV → 1 label age (prioritas negara: US → GB → ID)
+export async function getTVAge(tvId, signal, prefCountries = ["US","GB","ID"]) {
+  try {
+    const { data } = await api.get(`/tv/${tvId}/content_ratings`, { signal });
+    const results = Array.isArray(data?.results) ? data.results : [];
+    for (const cc of prefCountries) {
+      const row = results.find(r => r?.iso_3166_1 === cc && (r?.rating || "").trim());
+      if (row?.rating) return mapTvRatingToAgeLabel(row.rating);
+    }
+    const any = results.find(r => (r?.rating || "").trim());
+    return any?.rating ? mapTvRatingToAgeLabel(any.rating) : "TBD";
+  } catch (e) {
+    const canceled = e?.code === "ERR_CANCELED" || e?.name === "CanceledError" || e?.message === "canceled";
+    if (!canceled) console.warn("[TMDB TV age] gagal:", tvId, e?.message);
+    return "TBD";
+  }
+}
+
+// Batch: banyak TV → Map<id, ageLabel>
+export async function getTVAgesMap(ids = [], signal, prefCountries = ["US","GB","ID"]) {
+  const tasks = ids.map(id => getTVAge(id, signal, prefCountries).then(age => [id, age]));
+  const settled = await Promise.allSettled(tasks);
+  const map = new Map();
+  for (const r of settled) if (r.status === "fulfilled") map.set(r.value[0], r.value[1]);
+  return map;
+}
+
+// ===== TV SERIES: AIRING TODAY =====
+export const getAiringTodayTV = async (page = 1, signal) => {
+  const { data } = await api.get("/tv/airing_today", { params: { page }, signal });
+  return data; // { page, results, ... }
+};
+
+// --- POPULAR TV SERIES ---
 export const getPopularTV = async (page = 1, signal) => {
   const { data } = await api.get("/tv/popular", { params: { page }, signal });
   return data;
 };
 
+// --- TOP RATED TV SERIES ---
 export const getTopRatedTV = async (page = 1, signal) => {
   const { data } = await api.get("/tv/top_rated", { params: { page }, signal });
   return data;
+};
+
+// --- ON THE AIR TV SERIES ---
+export const getOnTheAirTV = async (page = 1, signal) => {
+  const { data } = await api.get("/tv/on_the_air", { params: { page }, signal });
+  return data; // { page, results, ... }
 };
 
 export const getTVDetail = async (id, signal) => {
