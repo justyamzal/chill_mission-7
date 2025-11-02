@@ -22,13 +22,6 @@ const historyItems = [
   { src: "/content-img/history_1.webp", title: "Dont Look Up", rating: "4.5/5" },
 ];
 
-const topItems = [
-  "/content-img/top_1.webp","/content-img/top_2.webp","/content-img/top_3.webp","/content-img/top_4.webp","/content-img/top_5.webp",
-].map((src) => ({ src }));
-
-const trendItems = [
-  "/content-img/trend_1.webp","/content-img/trend_2.webp","/content-img/trend_3.webp","/content-img/trend_4.webp","/content-img/trend_5.webp",
-].map((src) => ({ src }));
 
 const newItems = [
   "/content-img/new_1.webp","/content-img/new_2.webp","/content-img/new_3.webp","/content-img/new_4.webp","/content-img/new_5.webp",
@@ -38,8 +31,6 @@ export default function Home() {
   const { items } = useShows();
   const toSlide = (s) => ({ src: s.foto_sampul, title: s.nama_tayangan, rating: s.rating, genre: s.genre, tahun: s.tahun, kategori: s.kategori });
   const extraHistory  = items.filter(s => s.nominasi === "history").map(toSlide);
-  const extraTop      = items.filter(s => s.nominasi === "top").map(toSlide);
-  const extraTrending = items.filter(s => s.nominasi === "trending").map(toSlide);
   const extraNew      = items.filter(s => s.nominasi === "new").map(toSlide);
 
   
@@ -157,8 +148,7 @@ export default function Home() {
         {/* 1) Top Popular Movies and Series — mix, 20 card */}
         <CarouselRow title="Top Popular Movies and Series Today" items={popularMixed} />
         {errPopularMixed && <div className="px-5 md:px-20 text-red-400">{errPopularMixed}</div>}
-        <CarouselRow title="Top Rating Film dan Series Hari ini" items={[...extraTop, ...topItems]} />
-        <CarouselRow title="Film Trending" items={[...extraTrending, ...trendItems]} />
+        
         <CarouselRow title="Rilis Baru" items={[...extraNew, ...newItems]} />
         
 
